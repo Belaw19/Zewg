@@ -1,6 +1,8 @@
-# Zewg
+# Zewg (ዘውግ) – Student Opportunities Hub
 
 A Flutter application for connecting students with opportunities including internships, jobs, and scholarships.
+
+Zewg (ዘውግ) in Amharic means "connection based on category." The app connects students with relevant opportunities by organizing them into categories, making it easier to discover, track, and manage.
 
 ## Features
 
@@ -10,6 +12,8 @@ A Flutter application for connecting students with opportunities including inter
 - **Curator Dashboard**: Manage and publish opportunities
 - **Profile Management**: User profile and saved opportunities
 - **Responsive Design**: Works on mobile, web, and desktop
+- **Role-based Access**: Support for students and curators
+- **CRUD Operations**: Full create, read, update, delete for opportunities
 
 ## Getting Started
 
@@ -64,11 +68,24 @@ lib/
     └── curator/          # Curator dashboard
 ```
 
-## Dependencies
+## Tech Stack
 
-- `go_router` - Navigation and routing
-- `google_fonts` - Custom fonts
-- `intl` - Internationalization and date formatting
+- **Flutter** – UI framework
+- **Dart** – Programming language
+- **Material 3** – Design system
+- **go_router** – Navigation and routing
+- **google_fonts** – Custom fonts
+- **intl** – Internationalization and date formatting
+
+## Team Members
+
+| Full Name | ID (UGR/XXXX/YY) |
+| --------- | ---------------- |
+| Beimnet Abdi  | UGR/8524/16      |
+| Kebron Gizachew  | UGR/2666/16      |
+| Kidus Girma  | UGR/7576/16     |
+| Tsedeniya Fiseha| UGR/9263/16      |
+| Zenebu Melaku  | UGR/6058/16      |
 
 ## Contributing
 
