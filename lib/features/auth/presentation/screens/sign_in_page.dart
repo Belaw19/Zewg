@@ -139,22 +139,7 @@ class SignInPage extends StatelessWidget {
                   ),
                 ],
               ),
-              // const SizedBox(height: 28),
-              // Center(
-              //   child: GestureDetector(
-              //     onTap: () => _showAdminLoginSheet(context),
-              //     behavior: HitTestBehavior.opaque,
-              //     child: Text(
-              //       'Admin',
-              //       style: TextStyle(
-              //         fontSize: 13,
-              //         fontWeight: FontWeight.w500,
-              //         color: Colors.grey[400],
-              //         letterSpacing: 0.6,
-              //       ),
-              //     ),
-              //   ),
-              // ),
+          
               const SizedBox(height: 20),
             ],
           ),
@@ -162,69 +147,6 @@ class SignInPage extends StatelessWidget {
       ),
     );
   }
-
-  // void _showAdminLoginSheet(BuildContext context) {
-  //   final navigatorContext = context;
-  //   showModalBottomSheet<void>(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     backgroundColor: Colors.transparent,
-  //     builder: (sheetContext) {
-  //       return Padding(
-  //         padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(sheetContext).bottom),
-  //         child: Container(
-  //           decoration: const BoxDecoration(
-  //             color: Color(0xFFF9F9FB),
-  //             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-  //           ),
-  //           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-  //           child: SingleChildScrollView(
-  //             child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 Container(
-  //                   width: 40,
-  //                   height: 4,
-  //                   decoration: BoxDecoration(
-  //                     color: Colors.grey[300],
-  //                     borderRadius: BorderRadius.circular(2),
-  //                   ),
-  //                 ),
-  //                 const SizedBox(height: 20),
-  //                 const Text(
-  //                   'Zewg',
-  //                   style: TextStyle(
-  //                     fontSize: 36,
-  //                     fontWeight: FontWeight.w900,
-  //                     color: Color(0xFF004D61),
-  //                   ),
-  //                 ),
-  //                 // const SizedBox(height: 8),
-  //                 // Text(
-  //                 //   'Admin access',
-  //                 //   style: TextStyle(
-  //                 //     fontSize: 14,
-  //                 //     fontWeight: FontWeight.w500,
-  //                 //     color: Colors.grey[500],
-  //                 //     letterSpacing: 0.3,
-  //                 //   ),
-  //                 // ),
-  //                 // const SizedBox(height: 24),
-  //                 // AdminLoginForm(
-  //                 //   onSignedIn: () {
-  //                 //     Navigator.of(sheetContext).pop();
-  //                 //     navigatorContext.go(RoutePaths.adminDashboard);
-  //                 //   },
-  //                 // ),
-  //                 const SizedBox(height: 16),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   // // --- Helper Widgets ---
 

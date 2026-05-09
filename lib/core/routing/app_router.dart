@@ -7,10 +7,6 @@ import 'package:zewg/features/auth/presentation/screens/onboarding_page.dart';
 import 'package:zewg/features/auth/presentation/screens/scholarship_onboarding_page.dart';
 import 'package:zewg/features/auth/presentation/screens/sign_in_page.dart';
 import 'package:zewg/features/auth/presentation/screens/welcome_page.dart';
-// import 'package:zewg/features/home/presentation/screens/add_opportunity_page.dart';
-// import 'package:zewg/features/home/presentation/screens/admin_dashboard_page.dart';
-// import 'package:zewg/features/home/presentation/screens/admin_login_page.dart';
-// import 'package:zewg/features/home/presentation/screens/edit_opportunity_page.dart';
 import 'package:zewg/features/home/presentation/screens/opportunity_details_page.dart';
 import 'package:zewg/features/home/presentation/screens/zewg_home_page.dart';
 import 'package:zewg/features/home/presentation/screens/zewg_internships_page.dart';
@@ -35,9 +31,6 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/opportunities/:id', builder: (context, state) => const OpportunityDetails()),
     GoRoute(path: RoutePaths.journey, builder: (context, state) => const JourneyPage()),
     GoRoute(path: RoutePaths.profile, builder: (context, state) => const ProfilePage()),
-    // GoRoute(path: RoutePaths.adminLogin, builder: (context, state) => const AdminLoginPage()),
-    // GoRoute(path: RoutePaths.adminDashboard, builder: (context, state) => const AdminDashboard()),
-    // GoRoute(path: RoutePaths.adminAddOpportunity, builder: (context, state) => const AddOpportunityPage()),
-    // GoRoute(path: RoutePaths.adminEditOpportunity, builder: (context, state) => const EditOpportunityPage()),
+  
   ],
 );
