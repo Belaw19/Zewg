@@ -1,74 +1,43 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
-import '../../features/auth/presentation/screens/login_screen.dart';
-import '../../features/auth/presentation/screens/signup_screen.dart';
-import '../../features/home/presentation/screens/home_screen.dart';
-import '../../features/opportunities/presentation/screens/opportunity_detail_screen.dart';
-import '../../features/profile/presentation/screens/profile_screen.dart';
-import '../../features/curator/presentation/screens/curator_dashboard_screen.dart';
-import '../../features/curator/presentation/screens/add_opportunity_screen.dart';
-import '../../features/curator/presentation/screens/edit_opportunity_screen.dart';
-import 'route_names.dart';
 
-class AppRouter {
-  static final GoRouter router = GoRouter(
-    initialLocation: RouteNames.onboarding,
-    routes: [
-      // Onboarding
-      GoRoute(
-        path: RouteNames.onboarding,
-        builder: (context, state) => const OnboardingScreen(),
-      ),
-      
-      // Auth Routes
-      GoRoute(
-        path: RouteNames.login,
-        builder: (context, state) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: RouteNames.signup,
-        builder: (context, state) => const SignupScreen(),
-      ),
-      
-      // Student Routes
-      GoRoute(
-        path: RouteNames.home,
-        builder: (context, state) => const HomeScreen(),
-      ),
-      GoRoute(
-        path: '/opportunity/:id',
-        builder: (context, state) {
-          final id = state.pathParameters['id'] ?? '1';
-          return OpportunityDetailScreen(opportunityId: id);
-        },
-      ),
-      GoRoute(
-        path: RouteNames.profile,
-        builder: (context, state) => const ProfileScreen(),
-      ),
-      
-      // Curator Routes
-      GoRoute(
-        path: RouteNames.curatorDashboard,
-        builder: (context, state) => const CuratorDashboardScreen(),
-      ),
-      GoRoute(
-        path: RouteNames.addOpportunity,
-        builder: (context, state) => const AddOpportunityScreen(),
-      ),
-      GoRoute(
-        path: '/curator/edit/:id',
-        builder: (context, state) {
-          final id = state.pathParameters['id'] ?? '1';
-          return EditOpportunityScreen(opportunityId: id);
-        },
-      ),
-    ],
-    errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Text('Page not found: ${state.uri}'),
-      ),
-    ),
-  );
-}
+import 'package:zewg/core/constants/route_paths.dart';
+import 'package:zewg/features/auth/presentation/screens/create_account_page.dart';
+import 'package:zewg/features/auth/presentation/screens/manage_opportunities_page.dart';
+import 'package:zewg/features/auth/presentation/screens/onboarding_page.dart';
+import 'package:zewg/features/auth/presentation/screens/scholarship_onboarding_page.dart';
+import 'package:zewg/features/auth/presentation/screens/sign_in_page.dart';
+import 'package:zewg/features/auth/presentation/screens/welcome_page.dart';
+// import 'package:zewg/features/home/presentation/screens/add_opportunity_page.dart';
+// import 'package:zewg/features/home/presentation/screens/admin_dashboard_page.dart';
+// import 'package:zewg/features/home/presentation/screens/admin_login_page.dart';
+// import 'package:zewg/features/home/presentation/screens/edit_opportunity_page.dart';
+import 'package:zewg/features/home/presentation/screens/opportunity_details_page.dart';
+import 'package:zewg/features/home/presentation/screens/zewg_home_page.dart';
+import 'package:zewg/features/home/presentation/screens/zewg_internships_page.dart';
+import 'package:zewg/features/home/presentation/screens/zewg_jobs_page.dart';
+import 'package:zewg/features/home/presentation/screens/zewg_scholarships_page.dart';
+import 'package:zewg/features/profile/presentation/screens/journey_page.dart';
+import 'package:zewg/features/profile/presentation/screens/profile_page.dart';
+
+final GoRouter appRouter = GoRouter(
+  initialLocation: RoutePaths.welcome,
+  routes: [
+    GoRoute(path: RoutePaths.welcome, builder: (context, state) => const WelcomePage()),
+    GoRoute(path: RoutePaths.onboardingFuture, builder: (context, state) => const OnboardingPage()),
+    GoRoute(path: RoutePaths.onboardingScholarship, builder: (context, state) => const ScholarshipOnboardingPage()),
+    GoRoute(path: RoutePaths.onboardingManage, builder: (context, state) => const ManageOpportunitiesPage()),
+    GoRoute(path: RoutePaths.signIn, builder: (context, state) => const SignInPage()),
+    GoRoute(path: RoutePaths.createAccount, builder: (context, state) => CreateAccountPage()),
+    GoRoute(path: RoutePaths.homeAll, builder: (context, state) => const ZewgHomePage()),
+    GoRoute(path: RoutePaths.jobs, builder: (context, state) => const ZewgJobsPage()),
+    GoRoute(path: RoutePaths.internships, builder: (context, state) => const ZewgInternshipsPage()),
+    GoRoute(path: RoutePaths.scholarships, builder: (context, state) => const ZewgScholarshipsPage()),
+    GoRoute(path: '/opportunities/:id', builder: (context, state) => const OpportunityDetails()),
+    GoRoute(path: RoutePaths.journey, builder: (context, state) => const JourneyPage()),
+    GoRoute(path: RoutePaths.profile, builder: (context, state) => const ProfilePage()),
+    // GoRoute(path: RoutePaths.adminLogin, builder: (context, state) => const AdminLoginPage()),
+    // GoRoute(path: RoutePaths.adminDashboard, builder: (context, state) => const AdminDashboard()),
+    // GoRoute(path: RoutePaths.adminAddOpportunity, builder: (context, state) => const AddOpportunityPage()),
+    // GoRoute(path: RoutePaths.adminEditOpportunity, builder: (context, state) => const EditOpportunityPage()),
+  ],
+);
