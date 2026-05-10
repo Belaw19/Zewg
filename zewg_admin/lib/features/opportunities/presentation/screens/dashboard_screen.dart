@@ -5,101 +5,60 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/common_widgets.dart';
 import '../../domain/opportunity.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
-  @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  int _navIndex = 0;
-  String _selectedFilter = 'All';
-
-  final List<String> _filters = [
+  static const List<String> _filters = [
     'All',
     'Jobs',
     'Internships',
     'Scholarships',
   ];
 
-  final List<Opportunity> _opportunities = List.from(sampleOpportunities);
+  static final List<Opportunity> _opportunities = List.from(sampleOpportunities);
 
-  List<Opportunity> get _filtered {
-    if (_selectedFilter == 'All') return _opportunities;
+  List<Opportunity> _filteredBy(String selectedFilter) {
+    if (selectedFilter == 'All') return _opportunities;
 
-    final cat = _selectedFilter == 'Jobs'
+    final cat = selectedFilter == 'Jobs'
         ? 'Job'
-        : _selectedFilter == 'Internships'
+        : selectedFilter == 'Internships'
             ? 'Internship'
             : 'Scholarship';
 
     return _opportunities.where((o) => o.category == cat).toList();
   }
 
-  void _deleteOpportunity(String id) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          'Delete Opportunity',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
-        content: const Text(
-          'Are you sure you want to delete this post? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _opportunities.removeWhere((o) => o.id == id);
-              });
 
-              Navigator.pop(ctx);
+  void _navigateToEdit(BuildContext context, Opportunity opp) {
+    context.push('/edit-opportunity', extra: opp);
+  }
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Opportunity deleted'),
-                  backgroundColor: ZewgTheme.danger,
-                ),
-              );
-            },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: ZewgTheme.danger),
-            ),
-          ),
-        ],
+  void _navigateToAdd(BuildContext context) {
+    context.push('/add-opportunity');
+  }
+
+  void _showDeleteNotice(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Delete action is disabled in this view'),
+        backgroundColor: ZewgTheme.danger,
       ),
     );
   }
 
-  void _navigateToEdit(Opportunity opp) {
-    context.push('/edit-opportunity', extra: opp);
-  }
-
-  void _navigateToAdd() {
-    context.push('/add-opportunity');
-  }
-
   @override
   Widget build(BuildContext context) {
+    const selectedFilter = 'All';
+    final filtered = _filteredBy(selectedFilter);
+
     return Scaffold(
       backgroundColor: ZewgTheme.background,
       bottomNavigationBar: ZewgBottomNav(
-        currentIndex: _navIndex,
+        currentIndex: 0,
         onTap: (i) {
           if (i == 1) {
-            _navigateToAdd();
-          } else {
-            setState(() => _navIndex = i);
+            _navigateToAdd(context);
           }
         },
       ),
@@ -158,7 +117,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
-                      onPressed: _navigateToAdd,
+                      onPressed: () => _navigateToAdd(context),
                       icon: const Icon(Icons.add, size: 18),
                       label: const Text('New Post'),
                     ),
@@ -209,14 +168,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: _filters.map((f) {
-                          final selected = _selectedFilter == f;
+                          final selected = selectedFilter == f;
 
                           return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedFilter = f;
-                              });
-                            },
+                            onTap: () {},
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               margin: const EdgeInsets.only(right: 8),
@@ -259,18 +214,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
-                    final opp = _filtered[index];
+                    final opp = filtered[index];
 
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16),
                       child: OpportunityCard(
                         opportunity: opp,
-                        onEdit: () => _navigateToEdit(opp),
-                        onDelete: () => _deleteOpportunity(opp.id),
+                        onEdit: () => _navigateToEdit(context, opp),
+                        onDelete: () => _showDeleteNotice(context),
                       ),
                     );
                   },
-                  childCount: _filtered.length,
+                  childCount: filtered.length,
                 ),
               ),
             ),

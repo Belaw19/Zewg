@@ -5,55 +5,31 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/common_widgets.dart';
 import '../../domain/opportunity.dart';
 
-class OpportunityForm extends StatefulWidget {
+class OpportunityForm extends StatelessWidget {
   final Opportunity? existing;
   final void Function(Opportunity) onSubmit;
   final VoidCallback? onDelete;
+  late final TextEditingController _titleCtrl;
+  late final TextEditingController _locationCtrl;
+  late final TextEditingController _compensationAmtCtrl;
+  late final TextEditingController _educationCtrl;
+  late final TextEditingController _experienceCtrl;
+  late final TextEditingController _skillsCtrl;
+  late final TextEditingController _descriptionCtrl;
+  late final TextEditingController _urlCtrl;
+  late final List<_StepEntry> _steps;
+  late final String _category;
+  late final String _workType;
+  late final String _compensation;
+  late final DateTime? _deadline;
 
-  const OpportunityForm({
+  OpportunityForm({
     super.key,
     this.existing,
     required this.onSubmit,
     this.onDelete,
-  });
-
-  @override
-  State<OpportunityForm> createState() => _OpportunityFormState();
-}
-
-class _StepEntry {
-  final TextEditingController titleCtrl;
-  final TextEditingController descCtrl;
-  _StepEntry({required this.titleCtrl, required this.descCtrl});
-  void dispose() {
-    titleCtrl.dispose();
-    descCtrl.dispose();
-  }
-}
-
-class _OpportunityFormState extends State<OpportunityForm> {
-  late TextEditingController _titleCtrl;
-  late TextEditingController _locationCtrl;
-  late TextEditingController _compensationAmtCtrl;
-  late TextEditingController _educationCtrl;
-  late TextEditingController _experienceCtrl;
-  late TextEditingController _skillsCtrl;
-  late TextEditingController _descriptionCtrl;
-  late TextEditingController _urlCtrl;
-  late List<_StepEntry> _steps;
-
-  late String _category;
-  late String _workType;
-  late String _compensation;
-  DateTime? _deadline;
-  bool _submitting = false;
-
-  bool get _isEditMode => widget.existing != null;
-
-  @override
-  void initState() {
-    super.initState();
-    final e = widget.existing;
+  }) {
+    final e = existing;
     _titleCtrl = TextEditingController(text: e?.title ?? '');
     _locationCtrl = TextEditingController(text: e?.location ?? '');
     _compensationAmtCtrl =
@@ -82,22 +58,23 @@ class _OpportunityFormState extends State<OpportunityForm> {
   }
 
   @override
-  void dispose() {
-    _titleCtrl.dispose();
-    _locationCtrl.dispose();
-    _compensationAmtCtrl.dispose();
-    _educationCtrl.dispose();
-    _experienceCtrl.dispose();
-    _skillsCtrl.dispose();
-    _descriptionCtrl.dispose();
-    _urlCtrl.dispose();
-    for (final s in _steps) {
-      s.dispose();
-    }
-    super.dispose();
-  }
+  Widget build(BuildContext context) => _build(context);
+}
 
-  Future<void> _pickDate() async {
+class _StepEntry {
+  final TextEditingController titleCtrl;
+  final TextEditingController descCtrl;
+  _StepEntry({required this.titleCtrl, required this.descCtrl});
+  void dispose() {
+    titleCtrl.dispose();
+    descCtrl.dispose();
+  }
+}
+
+extension on OpportunityForm {
+  bool get _isEditMode => existing != null;
+
+  Future<void> _pickDate(BuildContext context) async {
     final picked = await showDatePicker(
       context: context,
       initialDate: _deadline ?? DateTime.now().add(const Duration(days: 30)),
@@ -110,17 +87,20 @@ class _OpportunityFormState extends State<OpportunityForm> {
         child: child!,
       ),
     );
-    if (picked != null) setState(() => _deadline = picked);
+    if (picked != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Date changes are disabled in this view')),
+      );
+    }
   }
 
-  void _submit() async {
+  void _submit(BuildContext context) async {
     if (_titleCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter an opportunity title')),
       );
       return;
     }
-    setState(() => _submitting = true);
     await Future.delayed(const Duration(milliseconds: 600));
 
     final skills = _skillsCtrl.text
@@ -136,7 +116,7 @@ class _OpportunityFormState extends State<OpportunityForm> {
         .toList();
 
     final opp = Opportunity(
-      id: widget.existing?.id ??
+      id: existing?.id ??
           DateTime.now().millisecondsSinceEpoch.toString(),
       title: _titleCtrl.text.trim(),
       category: _category,
@@ -151,16 +131,15 @@ class _OpportunityFormState extends State<OpportunityForm> {
       description: _descriptionCtrl.text.trim(),
       applicationSteps: steps,
       applicationUrl: _urlCtrl.text.trim(),
-      company: widget.existing?.company ?? 'The Academic Curator',
-      views: widget.existing?.views ?? 0,
-      postedAt: widget.existing?.postedAt ?? DateTime.now(),
+      company: existing?.company ?? 'The Academic Curator',
+      views: existing?.views ?? 0,
+      postedAt: existing?.postedAt ?? DateTime.now(),
     );
 
-    if (mounted) widget.onSubmit(opp);
+    onSubmit(opp);
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -208,14 +187,14 @@ class _OpportunityFormState extends State<OpportunityForm> {
         ZewgDropdown(
           value: _category,
           items: const ['Job', 'Internship', 'Scholarship'],
-          onChanged: (v) => setState(() => _category = v!),
+          onChanged: (_) {},
         ),
         const SizedBox(height: 16),
 
         // Deadline
         FieldLabel(text: _isEditMode ? 'Application Deadline' : 'Deadline'),
         GestureDetector(
-          onTap: _pickDate,
+          onTap: () => _pickDate(context),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
@@ -255,14 +234,14 @@ class _OpportunityFormState extends State<OpportunityForm> {
             ZewgDropdown(
               value: _workType,
               items: const ['Remote', 'On-site', 'Hybrid'],
-              onChanged: (v) => setState(() => _workType = v!),
+              onChanged: (_) {},
             ),
             const SizedBox(height: 16),
             const FieldLabel(text: 'Compensation'),
             ZewgDropdown(
               value: _compensation,
               items: const ['Paid', 'Unpaid', 'Stipend'],
-              onChanged: (v) => setState(() => _compensation = v!),
+              onChanged: (_) {},
             ),
             const SizedBox(height: 12),
             TextField(
@@ -336,7 +315,7 @@ class _OpportunityFormState extends State<OpportunityForm> {
                       .where((s) => s.isNotEmpty)
                       .map((s) => TagChip(label: s)),
                   GestureDetector(
-                    onTap: _showEditSkillsDialog,
+                    onTap: () => _showEditSkillsDialog(context),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
@@ -387,11 +366,7 @@ class _OpportunityFormState extends State<OpportunityForm> {
               _sectionHeader('Application Roadmap', Icons.route_outlined),
               const Spacer(),
               GestureDetector(
-                onTap: () => setState(() => _steps.add(
-                      _StepEntry(
-                          titleCtrl: TextEditingController(),
-                          descCtrl: TextEditingController()),
-                    )),
+                onTap: () {},
                 child: const Row(children: [
                   Icon(Icons.add, size: 16, color: ZewgTheme.primary),
                   SizedBox(width: 4),
@@ -496,7 +471,7 @@ class _OpportunityFormState extends State<OpportunityForm> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _submitting ? null : _submit,
+            onPressed: () => _submit(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: ZewgTheme.primary,
               foregroundColor: Colors.white,
@@ -504,14 +479,7 @@ class _OpportunityFormState extends State<OpportunityForm> {
                   borderRadius: BorderRadius.circular(30)),
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: _submitting
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                        color: Colors.white, strokeWidth: 2),
-                  )
-                : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     Text(
                       _isEditMode ? 'Save Changes' : 'Publish Opportunity',
                       style: const TextStyle(
@@ -528,12 +496,12 @@ class _OpportunityFormState extends State<OpportunityForm> {
         ),
 
         // Delete button (edit mode only)
-        if (_isEditMode && widget.onDelete != null) ...[
+        if (_isEditMode && onDelete != null) ...[
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: widget.onDelete,
+              onPressed: onDelete,
               icon: const Icon(Icons.delete_outline,
                   size: 18, color: ZewgTheme.danger),
               label: const Text('Delete Post',
@@ -602,7 +570,7 @@ class _OpportunityFormState extends State<OpportunityForm> {
     ]);
   }
 
-  void _showEditSkillsDialog() {
+  void _showEditSkillsDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) {
@@ -623,7 +591,6 @@ class _OpportunityFormState extends State<OpportunityForm> {
                 child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () {
-                setState(() => _skillsCtrl.text = ctrl.text);
                 Navigator.pop(ctx);
               },
               child: const Text('Save'),
