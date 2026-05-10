@@ -33,6 +33,7 @@ class ZewgHomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const OpportunityCard(
+                    bookmarkKey: 'home_social_media_intern',
                     title: 'Social Media Intern',
                     company: 'UNICEF',
                     tags: ['Remote', 'Paid', 'Addis Ababa, Ethiopia'],
@@ -42,6 +43,7 @@ class ZewgHomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const OpportunityCard(
+                    bookmarkKey: 'home_community_outreach',
                     title: 'Community Outreach Intern',
                     company: 'Red Cross',
                     tags: ['On-site', 'Volunteer + Stipend', 'Addis Ababa, Ethiopia'],
@@ -62,6 +64,7 @@ class ZewgHomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const OpportunityCard(
+                    bookmarkKey: 'home_education_leader',
                     title: 'Education Leader',
                     company: 'UNESCO',
                     tags: ['Hybrid', 'Fully Funded', 'Paris, France'],
@@ -71,6 +74,7 @@ class ZewgHomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const OpportunityCard(
+                    bookmarkKey: 'home_tech_fellowship',
                     title: 'Social Dev Scholar',
                     company: 'World Bank',
                     tags: ['On-site', 'Fully Funded', 'Washington, DC'],
@@ -91,6 +95,7 @@ class ZewgHomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const OpportunityCard(
+                    bookmarkKey: 'home_frontend_developer',
                     title: 'Frontend Developer (Entry Level)',
                     company: 'Google',
                     tags: ['Remote', '\$90k – \$120k', 'New York, NY'],
@@ -100,6 +105,7 @@ class ZewgHomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const OpportunityCard(
+                    bookmarkKey: 'home_network_engineer',
                     title: 'Network Engineer (Junior)',
                     company: 'Cisco',
                     tags: ['Remote', '\$80k – \$105k', 'San Jose, CA'],
