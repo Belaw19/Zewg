@@ -12,6 +12,7 @@ class OpportunityCard extends StatelessWidget {
   final Color categoryColor;
   final String deadline;
   final String bookmarkKey;
+  final String id;
 
   static final Map<String, ValueNotifier<bool>> _bookmarkStates = <String, ValueNotifier<bool>>{};
 
@@ -24,6 +25,7 @@ class OpportunityCard extends StatelessWidget {
     required this.categoryColor,
     required this.deadline,
     required this.bookmarkKey,
+    this.id = '1',
   });
 
   ValueNotifier<bool> _bookmarkNotifier() {
@@ -111,7 +113,7 @@ class OpportunityCard extends StatelessWidget {
                 ],
               ),
               ElevatedButton(
-                onPressed: () => context.go(RoutePaths.opportunity('1')),
+                onPressed: () => context.go(RoutePaths.opportunity(id)),
                 style: primaryInteractiveButtonStyle(
                   backgroundColor: const Color(0xFF005B71),
                   foregroundColor: Colors.white,

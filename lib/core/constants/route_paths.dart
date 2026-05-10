@@ -18,8 +18,7 @@ abstract final class RoutePaths {
 
   static String opportunity(String id) => '/opportunities/$id';
 
-  // static const adminLogin = '/admin-login';
-  // static const adminDashboard = '/admin-dashboard';
-  // static const adminAddOpportunity = '/admin-add-opportunity';
-  // static const adminEditOpportunity = '/admin-edit-opportunity';
+  static const curatorDashboard = '/curator-dashboard';
+  static const curatorAdd = '/curator-add';
+  static const curatorEdit = '/curator-edit';
 }

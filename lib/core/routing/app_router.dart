@@ -7,6 +7,9 @@ import 'package:zewg/features/auth/presentation/screens/onboarding_page.dart';
 import 'package:zewg/features/auth/presentation/screens/scholarship_onboarding_page.dart';
 import 'package:zewg/features/auth/presentation/screens/sign_in_page.dart';
 import 'package:zewg/features/auth/presentation/screens/welcome_page.dart';
+import 'package:zewg/features/curator/presentation/screens/add_opportunity_page.dart';
+import 'package:zewg/features/curator/presentation/screens/curator_dashboard_page.dart';
+import 'package:zewg/features/curator/presentation/screens/edit_opportunity_page.dart';
 import 'package:zewg/features/home/presentation/screens/opportunity_details_page.dart';
 import 'package:zewg/features/home/presentation/screens/zewg_home_page.dart';
 import 'package:zewg/features/home/presentation/screens/zewg_internships_page.dart';
@@ -29,10 +32,15 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: RoutePaths.jobs, builder: (context, state) => const ZewgJobsPage()),
     GoRoute(path: RoutePaths.internships, builder: (context, state) => const ZewgInternshipsPage()),
     GoRoute(path: RoutePaths.scholarships, builder: (context, state) => const ZewgScholarshipsPage()),
-    GoRoute(path: '/opportunities/:id', builder: (context, state) => const OpportunityDetails()),
+    GoRoute(
+      path: '/opportunities/:id',
+      builder: (context, state) => OpportunityDetails(id: state.pathParameters['id'] ?? '1'),
+    ),
     GoRoute(path: RoutePaths.journey, builder: (context, state) => const JourneyPage()),
     GoRoute(path: RoutePaths.applied, builder: (context, state) => const AppliedPage()),
     GoRoute(path: RoutePaths.profile, builder: (context, state) => const ProfilePage()),
-  
+    GoRoute(path: RoutePaths.curatorDashboard, builder: (context, state) => const CuratorDashboardPage()),
+    GoRoute(path: RoutePaths.curatorAdd, builder: (context, state) => const AddOpportunityPage()),
+    GoRoute(path: RoutePaths.curatorEdit, builder: (context, state) => const EditOpportunityPage()),
   ],
 );

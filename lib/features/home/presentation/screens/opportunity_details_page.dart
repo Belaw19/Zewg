@@ -6,7 +6,8 @@ import 'package:zewg/core/routing/navigation_helpers.dart';
 import 'package:zewg/core/theme/app_button_styles.dart';
 
 class OpportunityDetails extends StatelessWidget {
-  const OpportunityDetails({super.key});
+  final String id;
+  const OpportunityDetails({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
