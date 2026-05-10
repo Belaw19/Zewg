@@ -60,7 +60,19 @@ class OpportunityCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.bookmark_border, color: Colors.black87),
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {},
+                  borderRadius: BorderRadius.circular(20),
+                  splashColor: const Color(0xFF005B71).withOpacity(0.3),
+                  highlightColor: const Color(0xFF005B71).withOpacity(0.1),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: const Icon(Icons.bookmark_border, color: Colors.black87),
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),

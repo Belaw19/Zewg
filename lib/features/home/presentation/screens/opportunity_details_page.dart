@@ -65,7 +65,7 @@ class OpportunityDetails extends StatelessWidget {
               width: double.infinity,
               height: 55,
               child: ElevatedButton(
-                onPressed: ()=> context.go(RoutePaths.journey),
+                onPressed: ()=> context.go(RoutePaths.homeAll),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF004D40),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

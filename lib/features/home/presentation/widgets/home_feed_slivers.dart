@@ -136,7 +136,18 @@ Widget buildSectionTitle(String title) {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const Text('View all', style: TextStyle(color: Color(0xFF005B71), fontWeight: FontWeight.w600)),
+          Builder(
+            builder: (context) => GestureDetector(
+              onTap: () => context.go(RoutePaths.homeAll),
+              child: const Text(
+                'View all', 
+                style: TextStyle(
+                  color: Color(0xFF005B71), 
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     ),
