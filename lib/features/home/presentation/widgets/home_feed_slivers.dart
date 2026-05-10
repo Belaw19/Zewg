@@ -128,7 +128,11 @@ Widget _buildFilterChip(BuildContext context, String label, {required bool isSel
   );
 }
 
-Widget buildSectionTitle(String title) {
+Widget buildSectionTitle(
+  BuildContext context,
+  String title, {
+  String? viewAllDestination,
+}) {
   return SliverToBoxAdapter(
     child: Padding(
       padding: const EdgeInsets.fromLTRB(20, 32, 20, 16),
@@ -136,7 +140,15 @@ Widget buildSectionTitle(String title) {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const Text('View all', style: TextStyle(color: Color(0xFF005B71), fontWeight: FontWeight.w600)),
+          if (viewAllDestination != null)
+            GestureDetector(
+              onTap: () => context.go(viewAllDestination),
+              behavior: HitTestBehavior.opaque,
+              child: const Text(
+                'View all',
+                style: TextStyle(color: Color(0xFF005B71), fontWeight: FontWeight.w600),
+              ),
+            ),
         ],
       ),
     ),

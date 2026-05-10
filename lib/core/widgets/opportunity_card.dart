@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
+import 'package:zewg/core/theme/app_button_styles.dart';
 
 class OpportunityCard extends StatelessWidget {
   final String title;
@@ -10,6 +11,9 @@ class OpportunityCard extends StatelessWidget {
   final String category;
   final Color categoryColor;
   final String deadline;
+  final String bookmarkKey;
+
+  static final Map<String, ValueNotifier<bool>> _bookmarkStates = <String, ValueNotifier<bool>>{};
 
   const OpportunityCard({
     super.key,
@@ -19,10 +23,16 @@ class OpportunityCard extends StatelessWidget {
     required this.category,
     required this.categoryColor,
     required this.deadline,
+    required this.bookmarkKey,
   });
+
+  ValueNotifier<bool> _bookmarkNotifier() {
+    return _bookmarkStates.putIfAbsent(bookmarkKey, () => ValueNotifier<bool>(false));
+  }
 
   @override
   Widget build(BuildContext context) {
+    final ValueNotifier<bool> bookmarkNotifier = _bookmarkNotifier();
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -60,7 +70,19 @@ class OpportunityCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.bookmark_border, color: Colors.black87),
+              GestureDetector(
+                onTap: () => bookmarkNotifier.value = !bookmarkNotifier.value,
+                behavior: HitTestBehavior.opaque,
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: bookmarkNotifier,
+                  builder: (context, isBookmarked, _) {
+                    return Icon(
+                      isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                      color: isBookmarked ? const Color(0xFF005BFF) : Colors.black87,
+                    );
+                  },
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -90,13 +112,14 @@ class OpportunityCard extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () => context.go(RoutePaths.opportunity('1')),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF005B71), 
+                style: primaryInteractiveButtonStyle(
+                  backgroundColor: const Color(0xFF005B71),
+                  foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),
-                child: const Text('Apply Now', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: const Text('Apply Now', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:zewg/core/constants/route_paths.dart';
 import 'package:zewg/core/widgets/main_bottom_nav.dart';
 import 'package:zewg/core/widgets/opportunity_card.dart';
 import 'package:zewg/features/home/presentation/widgets/home_feed_slivers.dart';
@@ -16,12 +17,17 @@ class ZewgJobsPage extends StatelessWidget {
             buildSliverHeader(context),
             buildSliverSearchAndTitle(),
             buildFilterRow(context, 'Jobs'),
-            buildSectionTitle('Featured Opportunities'),
+            buildSectionTitle(
+              context,
+              'Featured Opportunities',
+              viewAllDestination: RoutePaths.homeAll,
+            ),
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   const OpportunityCard(
+                    bookmarkKey: 'jobs_frontend_developer',
                     title: 'Frontend Developer (Entry Level)',
                     company: 'Google',
                     tags: ['Remote', '\$90k – \$120k', 'New York, NY'],
@@ -31,6 +37,7 @@ class ZewgJobsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const OpportunityCard(
+                    bookmarkKey: 'jobs_network_engineer',
                     title: 'Network Engineer (Junior)',
                     company: 'Cisco',
                     tags: ['Remote', '\$80k – \$105k', 'San Jose, CA'],
@@ -40,6 +47,7 @@ class ZewgJobsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const OpportunityCard(
+                    bookmarkKey: 'jobs_product_designer',
                     title: 'Product Designer (New Grad)',
                     company: 'Figma',
                     tags: ['Remote', '\$110k – \$140k', 'San Francisco, CA'],

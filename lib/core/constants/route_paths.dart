@@ -13,6 +13,7 @@ abstract final class RoutePaths {
   static const internships = '/internships';
   static const scholarships = '/scholarships';
   static const journey = '/journey';
+  static const applied = '/applied';
   static const profile = '/profile';
 
   static String opportunity(String id) => '/opportunities/$id';

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
+import 'package:zewg/core/theme/app_button_styles.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -61,8 +62,9 @@ class WelcomePage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 60.0),
                 child: ElevatedButton(
                   onPressed: () => context.go(RoutePaths.onboardingFuture),
-                  style: ElevatedButton.styleFrom(
+                  style: primaryInteractiveButtonStyle(
                     backgroundColor: const Color(0xFF005B6E),
+                    foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 75),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(24),

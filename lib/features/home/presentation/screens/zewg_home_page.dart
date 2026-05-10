@@ -16,12 +16,13 @@ class ZewgHomePage extends StatelessWidget {
             buildSliverHeader(context),
             buildSliverSearchAndTitle(),
             buildFilterRow(context, 'All'),
-            buildSectionTitle('Featured Opportunities'),
+            buildSectionTitle(context, 'Featured Opportunities'),
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   const OpportunityCard(
+                    bookmarkKey: 'home_ux_intern',
                     title: 'UX Intern',
                     company: 'Google',
                     tags: ['Remote', 'Paid', 'New York'],
@@ -31,6 +32,7 @@ class ZewgHomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const OpportunityCard(
+                    bookmarkKey: 'home_public_health',
                     title: 'Public Health Scholarship',
                     company: 'World Health Organization',
                     tags: ['Remote', 'Fully Funded', 'Global'],
@@ -40,6 +42,7 @@ class ZewgHomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const OpportunityCard(
+                    bookmarkKey: 'home_product_designer',
                     title: 'Product Designer (New Grad)',
                     company: 'Figma',
                     tags: ['Remote', '\$110k – \$140k', 'San Francisco, CA'],

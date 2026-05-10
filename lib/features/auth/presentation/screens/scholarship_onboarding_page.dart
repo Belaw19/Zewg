@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:zewg/core/constants/onboarding_assets.dart';
 import 'package:zewg/core/constants/route_paths.dart';
 import 'package:zewg/core/routing/navigation_helpers.dart';
+import 'package:zewg/core/theme/app_button_styles.dart';
 import 'package:zewg/core/widgets/onboarding_hero_image.dart';
 
 class ScholarshipOnboardingPage extends StatelessWidget {
@@ -171,8 +172,9 @@ class ScholarshipOnboardingPage extends StatelessWidget {
                 // Primary Button
                 ElevatedButton(
                   onPressed: () => context.go(RoutePaths.onboardingManage),
-                  style: ElevatedButton.styleFrom(
+                  style: primaryInteractiveButtonStyle(
                     backgroundColor: const Color(0xFF005F73),
+                    foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 70),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),

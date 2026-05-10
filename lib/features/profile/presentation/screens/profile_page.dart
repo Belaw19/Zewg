@@ -111,7 +111,7 @@ class ProfilePage extends StatelessWidget {
 
             // Logout Button
             OutlinedButton(
-              onPressed: () {},
+              onPressed: () => context.go(RoutePaths.signIn),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 60),
                 side: const BorderSide(color: Color(0xFFFFE0E0)),

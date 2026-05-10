@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:zewg/core/constants/route_paths.dart';
 import 'package:zewg/core/widgets/main_bottom_nav.dart';
 import 'package:zewg/core/widgets/opportunity_card.dart';
 import 'package:zewg/features/home/presentation/widgets/home_feed_slivers.dart';
@@ -16,12 +17,17 @@ class ZewgInternshipsPage extends StatelessWidget {
             buildSliverHeader(context),
             buildSliverSearchAndTitle(),
             buildFilterRow(context, 'Internships'),
-            buildSectionTitle('Featured Opportunities'),
+            buildSectionTitle(
+              context,
+              'Featured Opportunities',
+              viewAllDestination: RoutePaths.homeAll,
+            ),
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   const OpportunityCard(
+                    bookmarkKey: 'internships_ux_intern',
                     title: 'UX Intern',
                     company: 'Google',
                     tags: ['Remote', 'Paid', 'New York'],
@@ -31,6 +37,7 @@ class ZewgInternshipsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const OpportunityCard(
+                    bookmarkKey: 'internships_social_media',
                     title: 'Social Media Intern',
                     company: 'UNICEF',
                     tags: ['Remote', 'Paid', 'Addis Ababa, Ethiopia'],
@@ -40,6 +47,7 @@ class ZewgInternshipsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const OpportunityCard(
+                    bookmarkKey: 'internships_community_outreach',
                     title: 'Community Outreach Intern',
                     company: 'Red Cross',
                     tags: ['On-site', 'Volunteer + Stipend', 'Addis Ababa, Ethiopia'],

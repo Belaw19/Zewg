@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
 
-class JourneyPage extends StatelessWidget {
-  const JourneyPage({super.key});
+class AppliedPage extends StatelessWidget {
+  const AppliedPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +59,6 @@ class JourneyPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 30),
-            
-            // Toggle Switch
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
@@ -69,6 +67,18 @@ class JourneyPage extends StatelessWidget {
               ),
               child: Row(
                 children: [
+                  Expanded(
+                    child: Center(
+                      child: GestureDetector(
+                        onTap: () => context.go(RoutePaths.journey),
+                        behavior: HitTestBehavior.opaque,
+                        child: const Text(
+                          'Saved',
+                          style: TextStyle(color: Color(0xFF666666)),
+                        ),
+                      ),
+                    ),
+                  ),
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -84,20 +94,8 @@ class JourneyPage extends StatelessWidget {
                       ),
                       child: const Center(
                         child: Text(
-                          'Saved',
-                          style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF004D61)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: GestureDetector(
-                        onTap: () => context.go(RoutePaths.applied),
-                        behavior: HitTestBehavior.opaque,
-                        child: const Text(
                           'Applied',
-                          style: TextStyle(color: Color(0xFF666666)),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF004D61)),
                         ),
                       ),
                     ),
@@ -106,22 +104,17 @@ class JourneyPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-
-            // Card 1: Global Leadership Program
             _buildOpportunityCard(
-              icon: Icons.school_outlined,
-              iconBg: const Color(0xFFD9E9F2),
-              title: 'Global Leadership Program',
-              subtitle: 'University of Oxford',
-              tag: 'SAVED',
-              tagBg: const Color(0xFFD9E9F2),
-              tagTextColor: const Color(0xFF7B9FB6),
-              isSaved: true,
+              icon: Icons.work_outline,
+              iconBg: const Color(0xFFFFEAD2),
+              title: 'UX Design Research Intern',
+              subtitle: 'Design Curators Ltd.',
+              tag: 'IN REVIEW',
+              tagBg: const Color(0xFF004D61),
+              tagTextColor: Colors.white,
+              footer: 'Applied 4 days ago',
             ),
-
-            const SizedBox(height: 16),
-
-            const SizedBox(height: 100), // Space for bottom nav
+            const SizedBox(height: 100),
           ],
         ),
       ),
@@ -152,7 +145,6 @@ class JourneyPage extends StatelessWidget {
     required Color tagBg,
     required Color tagTextColor,
     String? footer,
-    required bool isSaved,
   }) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -210,33 +202,7 @@ class JourneyPage extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(footer, style: const TextStyle(color: Colors.grey, fontSize: 13)),
               ],
-            )
-          else
-            SizedBox(
-  width: 40, // Fixed width to contain the overlap
-  height: 24,
-  child: Stack(
-    children: [
-      const CircleAvatar(
-        radius: 12, 
-        backgroundColor: Color(0xFF2E4352),
-      ),
-      Positioned(
-        left: 14, // This creates the overlap without negative widths
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2),
-          ),
-          child: const CircleAvatar(
-            radius: 10, 
-            backgroundColor: Color(0xFF1B2B36),
-          ),
-        ),
-      ),
-    ],
-  ),
-),
+            ),
         ],
       ),
     );

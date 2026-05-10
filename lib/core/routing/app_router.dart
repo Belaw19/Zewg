@@ -12,6 +12,7 @@ import 'package:zewg/features/home/presentation/screens/zewg_home_page.dart';
 import 'package:zewg/features/home/presentation/screens/zewg_internships_page.dart';
 import 'package:zewg/features/home/presentation/screens/zewg_jobs_page.dart';
 import 'package:zewg/features/home/presentation/screens/zewg_scholarships_page.dart';
+import 'package:zewg/features/profile/presentation/screens/applied_page.dart';
 import 'package:zewg/features/profile/presentation/screens/journey_page.dart';
 import 'package:zewg/features/profile/presentation/screens/profile_page.dart';
 
@@ -30,6 +31,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: RoutePaths.scholarships, builder: (context, state) => const ZewgScholarshipsPage()),
     GoRoute(path: '/opportunities/:id', builder: (context, state) => const OpportunityDetails()),
     GoRoute(path: RoutePaths.journey, builder: (context, state) => const JourneyPage()),
+    GoRoute(path: RoutePaths.applied, builder: (context, state) => const AppliedPage()),
     GoRoute(path: RoutePaths.profile, builder: (context, state) => const ProfilePage()),
   
   ],

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
 import 'package:zewg/core/routing/navigation_helpers.dart';
+import 'package:zewg/core/theme/app_button_styles.dart';
 
 class ManageOpportunitiesPage extends StatelessWidget {
   const ManageOpportunitiesPage({super.key});
@@ -129,8 +130,9 @@ class ManageOpportunitiesPage extends StatelessWidget {
                 // --- NEXT BUTTON ---
                 ElevatedButton(
                   onPressed: () => context.go(RoutePaths.signIn),
-                  style: ElevatedButton.styleFrom(
+                  style: primaryInteractiveButtonStyle(
                     backgroundColor: const Color(0xFF005F73),
+                    foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 70),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     elevation: 8,

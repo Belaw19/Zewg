@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
+import 'package:zewg/core/theme/app_button_styles.dart';
 // import 'package:zewg/features/auth/presentation/widgets/admin_login_form.dart';
 
 class SignInPage extends StatelessWidget {
@@ -88,8 +89,9 @@ class SignInPage extends StatelessWidget {
                     // Sign In Button
                     ElevatedButton(
                       onPressed: () => context.go(RoutePaths.homeAll),
-                      style: ElevatedButton.styleFrom(
+                      style: primaryInteractiveButtonStyle(
                         backgroundColor: const Color(0xFF005B6E),
+                        foregroundColor: Colors.white,
                         minimumSize: const Size(double.infinity, 70),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(100),

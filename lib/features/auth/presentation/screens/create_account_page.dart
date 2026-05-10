@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
+import 'package:zewg/core/theme/app_button_styles.dart';
 
 class CreateAccountPage extends StatelessWidget {
   // Global key to manage the form state without a StatefulWidget
@@ -89,8 +90,9 @@ class CreateAccountPage extends StatelessWidget {
                       context.go(RoutePaths.homeAll);
                     }
                   },
-                  style: ElevatedButton.styleFrom(
+                  style: primaryInteractiveButtonStyle(
                     backgroundColor: const Color(0xFF005B6E),
+                    foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 75),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                     elevation: 8,
@@ -107,7 +109,7 @@ class CreateAccountPage extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 30),
-                _buildFooter(),
+                _buildFooter(context),
                 const SizedBox(height: 60),
                 _buildPartnerFooter(),
                 const SizedBox(height: 20),
@@ -148,16 +150,24 @@ class CreateAccountPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(BuildContext context) {
     return Center(
-      child: RichText(
-        text: const TextSpan(
-          style: TextStyle(color: Color(0xFF555555), fontSize: 14),
-          children: [
-            TextSpan(text: 'Already have an account? '),
-            TextSpan(text: 'Sign In', style: TextStyle(color: Color(0xFF004D61), fontWeight: FontWeight.bold)),
-          ],
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Already have an account? ',
+            style: TextStyle(color: Color(0xFF555555), fontSize: 14),
+          ),
+          GestureDetector(
+            onTap: () => context.go(RoutePaths.signIn),
+            behavior: HitTestBehavior.opaque,
+            child: const Text(
+              'Sign In',
+              style: TextStyle(color: Color(0xFF004D61), fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+          ),
+        ],
       ),
     );
   }

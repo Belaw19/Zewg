@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
 import 'package:zewg/core/routing/navigation_helpers.dart';
+import 'package:zewg/core/theme/app_button_styles.dart';
 
 class OpportunityDetails extends StatelessWidget {
   const OpportunityDetails({super.key});
@@ -65,9 +66,10 @@ class OpportunityDetails extends StatelessWidget {
               width: double.infinity,
               height: 55,
               child: ElevatedButton(
-                onPressed: ()=> context.go(RoutePaths.journey),
-                style: ElevatedButton.styleFrom(
+                onPressed: () => context.go(RoutePaths.homeAll),
+                style: primaryInteractiveButtonStyle(
                   backgroundColor: const Color(0xFF004D40),
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: const Row(
