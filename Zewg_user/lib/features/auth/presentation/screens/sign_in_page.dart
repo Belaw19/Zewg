@@ -26,10 +26,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   }
 
   Future<void> _submit() async {
-    final ok = await ref
-        .read(authProvider.notifier)
-        .signIn(_emailCtrl.text, _passwordCtrl.text);
-    if (ok && mounted) context.go(RoutePaths.homeAll);
+    await ref.read(authProvider.notifier).signIn(_emailCtrl.text, _passwordCtrl.text);
+    // router redirect handles navigation automatically when auth state changes
   }
 
   @override

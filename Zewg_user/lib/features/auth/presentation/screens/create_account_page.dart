@@ -29,10 +29,8 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final ok = await ref
-        .read(authProvider.notifier)
-        .signUp(_nameCtrl.text, _emailCtrl.text, _passwordCtrl.text);
-    if (ok && mounted) context.go(RoutePaths.homeAll);
+    await ref.read(authProvider.notifier).signUp(_nameCtrl.text, _emailCtrl.text, _passwordCtrl.text);
+    // router redirect handles navigation automatically when auth state changes
   }
 
   @override

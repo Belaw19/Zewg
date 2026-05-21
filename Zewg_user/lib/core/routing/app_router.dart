@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,17 +27,35 @@ const _publicRoutes = {
   RoutePaths.createAccount,
 };
 
+/// Bridges Riverpod auth state → GoRouter refreshListenable.
+class _RouterNotifier extends ChangeNotifier {
+  final Ref _ref;
+
+  _RouterNotifier(this._ref) {
+    // Listen to auth changes and notify GoRouter to re-run redirect
+    _ref.listen<AuthState>(authProvider, (_, __) => notifyListeners());
+  }
+
+  String? redirect(GoRouterState state) {
+    final auth = _ref.read(authProvider);
+    if (auth.isLoading) return null;
+    final isPublic = _publicRoutes.contains(state.matchedLocation);
+    if (!auth.isAuthenticated && !isPublic) return RoutePaths.signIn;
+    if (auth.isAuthenticated && isPublic) return RoutePaths.homeAll;
+    return null;
+  }
+}
+
+final _routerNotifierProvider = Provider<_RouterNotifier>((ref) {
+  return _RouterNotifier(ref);
+});
+
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final router = GoRouter(
+  final notifier = ref.watch(_routerNotifierProvider);
+  return GoRouter(
     initialLocation: RoutePaths.welcome,
-    redirect: (context, state) {
-      final authState = ref.read(authProvider);
-      if (authState.isLoading) return null;
-      final isPublic = _publicRoutes.contains(state.matchedLocation);
-      if (!authState.isAuthenticated && !isPublic) return RoutePaths.signIn;
-      if (authState.isAuthenticated && isPublic) return RoutePaths.homeAll;
-      return null;
-    },
+    refreshListenable: notifier,
+    redirect: (_, state) => notifier.redirect(state),
     routes: [
       GoRoute(path: RoutePaths.welcome, builder: (_, __) => const WelcomePage()),
       GoRoute(path: RoutePaths.onboardingFuture, builder: (_, __) => const OnboardingPage()),
@@ -57,19 +76,4 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: RoutePaths.profile, builder: (_, __) => const ProfilePage()),
     ],
   );
-
-  // Refresh router whenever auth state changes
-  ref.listen(authProvider, (_, __) => router.refresh());
-
-  return router;
 });
-
-// Legacy export kept so any file that still imports `appRouter` compiles
-final GoRouter appRouter = GoRouter(
-  initialLocation: RoutePaths.welcome,
-  routes: [
-    GoRoute(path: RoutePaths.welcome, builder: (_, __) => const WelcomePage()),
-    GoRoute(path: RoutePaths.signIn, builder: (_, __) => const SignInPage()),
-    GoRoute(path: RoutePaths.homeAll, builder: (_, __) => const ZewgHomePage()),
-  ],
-);

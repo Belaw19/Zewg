@@ -4,13 +4,9 @@ import 'package:zewg/features/auth/data/datasources/auth_remote_datasource.dart'
 import 'package:zewg/features/auth/data/repositories/auth_repository.dart';
 import 'package:zewg/features/auth/domain/models/user_model.dart';
 
-// ── Repository provider ──────────────────────────────────────────────────────
-
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(AuthLocalDataSource(), AuthRemoteDataSource());
 });
-
-// ── Auth state ───────────────────────────────────────────────────────────────
 
 class AuthState {
   final UserModel? user;
@@ -20,13 +16,6 @@ class AuthState {
   const AuthState({this.user, this.isLoading = false, this.error});
 
   bool get isAuthenticated => user != null;
-
-  AuthState copyWith({UserModel? user, bool? isLoading, String? error, bool clearUser = false}) =>
-      AuthState(
-        user: clearUser ? null : (user ?? this.user),
-        isLoading: isLoading ?? this.isLoading,
-        error: error,
-      );
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
@@ -42,25 +31,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<bool> signIn(String email, String password) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = const AuthState(isLoading: true);
     try {
       final user = await _repo.signIn(email, password);
       state = AuthState(user: user);
       return true;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString().replaceFirst('Exception: ', ''));
+      state = AuthState(error: e.toString().replaceFirst('Exception: ', ''));
       return false;
     }
   }
 
   Future<bool> signUp(String name, String email, String password) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = const AuthState(isLoading: true);
     try {
       final user = await _repo.signUp(name, email, password);
       state = AuthState(user: user);
       return true;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString().replaceFirst('Exception: ', ''));
+      state = AuthState(error: e.toString().replaceFirst('Exception: ', ''));
       return false;
     }
   }
