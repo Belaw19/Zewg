@@ -1,41 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
+import 'package:zewg/features/auth/domain/providers/auth_provider.dart';
+import 'package:zewg/features/opportunities/domain/providers/opportunity_provider.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authProvider).user;
+    final savedCount = ref.watch(savedOpportunitiesProvider).whenOrNull(data: (l) => l.length) ?? 0;
+    final appliedCount = ref.watch(appliedOpportunitiesProvider).whenOrNull(data: (l) => l.length) ?? 0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FB),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Zewg',
-          style: TextStyle(
-            color: Color(0xFF004D61),
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-          ),
-        ),
+        title: const Text('Zewg',
+            style: TextStyle(color: Color(0xFF004D61), fontWeight: FontWeight.bold, fontSize: 24)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
           children: [
             const SizedBox(height: 30),
-            
-            // Profile Image
             Center(
               child: Container(
                 padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE0E0E0),
-                  shape: BoxShape.circle,
-                ),
+                decoration: const BoxDecoration(color: Color(0xFFE0E0E0), shape: BoxShape.circle),
                 child: const CircleAvatar(
                   radius: 60,
                   backgroundColor: Color(0xFF43535E),
@@ -43,75 +39,50 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
             ),
-            
             const SizedBox(height: 20),
-            
-            // Name and Role
-            const Text(
-              'Alex Morgan',
-              style: TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF1A1A1A),
-              ),
+            Text(
+              user?.name ?? 'Guest',
+              style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w800, color: Color(0xFF1A1A1A)),
             ),
-            const Text(
-              'STUDENT',
-              style: TextStyle(
-                fontSize: 16,
-                letterSpacing: 2.0,
-                color: Color(0xFF006B7D),
-                fontWeight: FontWeight.w600,
-              ),
+            Text(
+              (user?.role ?? 'student').toUpperCase(),
+              style: const TextStyle(fontSize: 16, letterSpacing: 2.0, color: Color(0xFF006B7D), fontWeight: FontWeight.w600),
             ),
-            
             const SizedBox(height: 40),
-
-            // Statistics Grid (Submissions & Saved)
             Row(
               children: [
-                Expanded(
-                  child: _buildStatCard('30', 'SUBMISSIONS', Icons.assignment_turned_in_outlined),
-                ),
+                Expanded(child: _buildStatCard('$appliedCount', 'APPLIED', Icons.assignment_turned_in_outlined)),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: _buildStatCard('12', 'SAVED', Icons.assignment_turned_in_outlined),
-                ),
+                Expanded(child: _buildStatCard('$savedCount', 'SAVED', Icons.bookmark_outline)),
               ],
             ),
-            
             const SizedBox(height: 16),
-
-            // Verified Identity Card
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F1F3),
-                borderRadius: BorderRadius.circular(20),
-              ),
+              decoration: BoxDecoration(color: const Color(0xFFF1F1F3), borderRadius: BorderRadius.circular(20)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(Icons.verified_outlined, color: Color(0xFF004D61), size: 32),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Verified',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
-                  ),
-                  Text(
-                    'IDENTITY',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey[600]),
-                  ),
+                  const Text('Verified',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A))),
+                  Text('IDENTITY',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey[600])),
+                  if (user != null) ...[
+                    const SizedBox(height: 8),
+                    Text(user.email, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+                  ],
                 ],
               ),
             ),
-
             const SizedBox(height: 60),
-
-            // Logout Button
             OutlinedButton(
-              onPressed: () => context.go(RoutePaths.signIn),
+              onPressed: () async {
+                await ref.read(authProvider.notifier).signOut();
+                if (context.mounted) context.go(RoutePaths.signIn);
+              },
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 60),
                 side: const BorderSide(color: Color(0xFFFFE0E0)),
@@ -123,10 +94,8 @@ class ProfilePage extends StatelessWidget {
                 children: [
                   Icon(Icons.logout, color: Colors.redAccent, size: 20),
                   SizedBox(width: 10),
-                  Text(
-                    'Logout',
-                    style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
+                  Text('Logout',
+                      style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16)),
                 ],
               ),
             ),
@@ -141,23 +110,14 @@ class ProfilePage extends StatelessWidget {
   Widget _buildStatCard(String value, String label, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF1F1F3),
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: BoxDecoration(color: const Color(0xFFF1F1F3), borderRadius: BorderRadius.circular(20)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: const Color(0xFF004D61), size: 28),
           const SizedBox(height: 16),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
-          ),
-          Text(
-            label,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey[600]),
-          ),
+          Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A))),
+          Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey[600])),
         ],
       ),
     );
@@ -167,45 +127,37 @@ class ProfilePage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-      ),
+          color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(Icons.home_outlined, 'HOME', false, () => context.go(RoutePaths.homeAll)),
-          _buildNavItem(Icons.bookmark_outline, 'SAVED', false, () => context.go(RoutePaths.journey)),
-          _buildNavItem(Icons.person, 'PROFILE', true, () => context.go(RoutePaths.profile)),
+          _navItem(Icons.home_outlined, 'HOME', false, () => context.go(RoutePaths.homeAll)),
+          _navItem(Icons.bookmark_outline, 'SAVED', false, () => context.go(RoutePaths.journey)),
+          _navItem(Icons.person, 'PROFILE', true, () => context.go(RoutePaths.profile)),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, bool isActive, VoidCallback onTap) {
+  Widget _navItem(IconData icon, String label, bool isActive, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: isActive
-            ? BoxDecoration(
-                color: const Color(0xFF006B7D),
-                borderRadius: BorderRadius.circular(12),
-              )
+            ? BoxDecoration(color: const Color(0xFF006B7D), borderRadius: BorderRadius.circular(12))
             : null,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: isActive ? Colors.white : Colors.grey),
             const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isActive ? Colors.white : Colors.grey,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text(label,
+                style: TextStyle(
+                    color: isActive ? Colors.white : Colors.grey,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold)),
           ],
         ),
       ),

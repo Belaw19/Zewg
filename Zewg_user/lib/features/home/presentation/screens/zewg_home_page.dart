@@ -1,123 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:zewg/core/widgets/main_bottom_nav.dart';
 import 'package:zewg/core/widgets/opportunity_card.dart';
 import 'package:zewg/features/home/presentation/widgets/home_feed_slivers.dart';
+import 'package:zewg/features/opportunities/domain/providers/opportunity_provider.dart';
 
-class ZewgHomePage extends StatelessWidget {
+class ZewgHomePage extends ConsumerWidget {
   const ZewgHomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(opportunitiesProvider);
+
     return Scaffold(
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            buildSliverHeader(context),
-            buildSliverSearchAndTitle(),
-            buildFilterRow(context, 'All'),
-            buildSectionTitle(context, 'Featured Opportunities'),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  // Internships
-                  const OpportunityCard(
-                    bookmarkKey: 'home_ux_intern',
-                    title: 'UX Intern',
-                    company: 'Google',
-                    tags: ['Remote', 'Paid', 'New York'],
-                    category: 'INTERNSHIP',
-                    categoryColor: Color(0xFFA2F1A2),
-                    deadline: 'Oct 30',
+        child: RefreshIndicator(
+          onRefresh: () => ref.read(opportunitiesProvider.notifier).refresh(),
+          child: CustomScrollView(
+            slivers: [
+              buildSliverHeader(context),
+              buildSliverSearchAndTitle(ref),
+              buildFilterRow(context, 'All'),
+              buildSectionTitle(context, 'Featured Opportunities'),
+              state.when(
+                loading: () => const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (e, _) => SliverFillRemaining(
+                  child: Center(child: Text('Error: $e')),
+                ),
+                data: (opportunities) => SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        if (index == opportunities.length) return const SizedBox(height: 100);
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: OpportunityCard(opportunity: opportunities[index]),
+                        );
+                      },
+                      childCount: opportunities.length + 1,
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  const OpportunityCard(
-                    bookmarkKey: 'home_social_media_intern',
-                    title: 'Social Media Intern',
-                    company: 'UNICEF',
-                    tags: ['Remote', 'Paid', 'Addis Ababa, Ethiopia'],
-                    category: 'INTERNSHIP',
-                    categoryColor: Color(0xFFA2F1A2),
-                    deadline: 'Nov 15',
-                  ),
-                  const SizedBox(height: 16),
-                  const OpportunityCard(
-                    bookmarkKey: 'home_community_outreach',
-                    title: 'Community Outreach Intern',
-                    company: 'Red Cross',
-                    tags: ['On-site', 'Volunteer + Stipend', 'Addis Ababa, Ethiopia'],
-                    category: 'INTERNSHIP',
-                    categoryColor: Color(0xFFA2F1A2),
-                    deadline: 'Nov 15',
-                  ),
-                  const SizedBox(height: 16),
-                  // Scholarships
-                  const OpportunityCard(
-                    bookmarkKey: 'home_public_health',
-                    title: 'Public Health Scholarship',
-                    company: 'World Health Organization',
-                    tags: ['Remote', 'Fully Funded', 'Global'],
-                    category: 'SCHOLARSHIP',
-                    categoryColor: Color(0xFFFDE2C4),
-                    deadline: 'Nov 15',
-                  ),
-                  const SizedBox(height: 16),
-                  const OpportunityCard(
-                    bookmarkKey: 'home_education_leader',
-                    title: 'Education Leader',
-                    company: 'UNESCO',
-                    tags: ['Hybrid', 'Fully Funded', 'Paris, France'],
-                    category: 'SCHOLARSHIP',
-                    categoryColor: Color(0xFFFDE2C4),
-                    deadline: 'July 1',
-                  ),
-                  const SizedBox(height: 16),
-                  const OpportunityCard(
-                    bookmarkKey: 'home_tech_fellowship',
-                    title: 'Social Dev Scholar',
-                    company: 'World Bank',
-                    tags: ['On-site', 'Fully Funded', 'Washington, DC'],
-                    category: 'SCHOLARSHIP',
-                    categoryColor: Color(0xFFFDE2C4),
-                    deadline: 'Jun 30',
-                  ),
-                  const SizedBox(height: 16),
-                  // Jobs
-                  const OpportunityCard(
-                    bookmarkKey: 'home_product_designer',
-                    title: 'Product Designer (New Grad)',
-                    company: 'Figma',
-                    tags: ['Remote', '\$110k – \$140k', 'San Francisco, CA'],
-                    category: 'JOB',
-                    categoryColor: Color(0xFFD4E5EF),
-                    deadline: 'Oct 25',
-                  ),
-                  const SizedBox(height: 16),
-                  const OpportunityCard(
-                    bookmarkKey: 'home_frontend_developer',
-                    title: 'Frontend Developer (Entry Level)',
-                    company: 'Google',
-                    tags: ['Remote', '\$90k – \$120k', 'New York, NY'],
-                    category: 'JOB',
-                    categoryColor: Color(0xFFD4E5EF),
-                    deadline: 'Nov 10',
-                  ),
-                  const SizedBox(height: 16),
-                  const OpportunityCard(
-                    bookmarkKey: 'home_network_engineer',
-                    title: 'Network Engineer (Junior)',
-                    company: 'Cisco',
-                    tags: ['Remote', '\$80k – \$105k', 'San Jose, CA'],
-                    category: 'JOB',
-                    categoryColor: Color(0xFFD4E5EF),
-                    deadline: 'Nov 15',
-                  ),
-                  const SizedBox(height: 100),
-                ]),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: buildMainBottomNav(context, isHome: true),

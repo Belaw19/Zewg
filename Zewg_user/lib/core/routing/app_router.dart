@@ -1,6 +1,8 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
+import 'package:zewg/features/auth/domain/providers/auth_provider.dart';
 import 'package:zewg/features/auth/presentation/screens/create_account_page.dart';
 import 'package:zewg/features/auth/presentation/screens/manage_opportunities_page.dart';
 import 'package:zewg/features/auth/presentation/screens/onboarding_page.dart';
@@ -12,27 +14,62 @@ import 'package:zewg/features/home/presentation/screens/zewg_home_page.dart';
 import 'package:zewg/features/home/presentation/screens/zewg_internships_page.dart';
 import 'package:zewg/features/home/presentation/screens/zewg_jobs_page.dart';
 import 'package:zewg/features/home/presentation/screens/zewg_scholarships_page.dart';
-import 'package:zewg/features/profile/presentation/screens/applied_page.dart';
 import 'package:zewg/features/profile/presentation/screens/journey_page.dart';
 import 'package:zewg/features/profile/presentation/screens/profile_page.dart';
 
+const _publicRoutes = {
+  RoutePaths.welcome,
+  RoutePaths.onboardingFuture,
+  RoutePaths.onboardingScholarship,
+  RoutePaths.onboardingManage,
+  RoutePaths.signIn,
+  RoutePaths.createAccount,
+};
+
+final appRouterProvider = Provider<GoRouter>((ref) {
+  final router = GoRouter(
+    initialLocation: RoutePaths.welcome,
+    redirect: (context, state) {
+      final authState = ref.read(authProvider);
+      if (authState.isLoading) return null;
+      final isPublic = _publicRoutes.contains(state.matchedLocation);
+      if (!authState.isAuthenticated && !isPublic) return RoutePaths.signIn;
+      if (authState.isAuthenticated && isPublic) return RoutePaths.homeAll;
+      return null;
+    },
+    routes: [
+      GoRoute(path: RoutePaths.welcome, builder: (_, __) => const WelcomePage()),
+      GoRoute(path: RoutePaths.onboardingFuture, builder: (_, __) => const OnboardingPage()),
+      GoRoute(path: RoutePaths.onboardingScholarship, builder: (_, __) => const ScholarshipOnboardingPage()),
+      GoRoute(path: RoutePaths.onboardingManage, builder: (_, __) => const ManageOpportunitiesPage()),
+      GoRoute(path: RoutePaths.signIn, builder: (_, __) => const SignInPage()),
+      GoRoute(path: RoutePaths.createAccount, builder: (_, __) => const CreateAccountPage()),
+      GoRoute(path: RoutePaths.homeAll, builder: (_, __) => const ZewgHomePage()),
+      GoRoute(path: RoutePaths.jobs, builder: (_, __) => const ZewgJobsPage()),
+      GoRoute(path: RoutePaths.internships, builder: (_, __) => const ZewgInternshipsPage()),
+      GoRoute(path: RoutePaths.scholarships, builder: (_, __) => const ZewgScholarshipsPage()),
+      GoRoute(
+        path: '/opportunities/:id',
+        builder: (_, state) => OpportunityDetails(id: state.pathParameters['id']!),
+      ),
+      GoRoute(path: RoutePaths.journey, builder: (_, __) => const JourneyPage()),
+      GoRoute(path: RoutePaths.applied, builder: (_, __) => const AppliedPage()),
+      GoRoute(path: RoutePaths.profile, builder: (_, __) => const ProfilePage()),
+    ],
+  );
+
+  // Refresh router whenever auth state changes
+  ref.listen(authProvider, (_, __) => router.refresh());
+
+  return router;
+});
+
+// Legacy export kept so any file that still imports `appRouter` compiles
 final GoRouter appRouter = GoRouter(
   initialLocation: RoutePaths.welcome,
   routes: [
-    GoRoute(path: RoutePaths.welcome, builder: (context, state) => const WelcomePage()),
-    GoRoute(path: RoutePaths.onboardingFuture, builder: (context, state) => const OnboardingPage()),
-    GoRoute(path: RoutePaths.onboardingScholarship, builder: (context, state) => const ScholarshipOnboardingPage()),
-    GoRoute(path: RoutePaths.onboardingManage, builder: (context, state) => const ManageOpportunitiesPage()),
-    GoRoute(path: RoutePaths.signIn, builder: (context, state) => const SignInPage()),
-    GoRoute(path: RoutePaths.createAccount, builder: (context, state) => CreateAccountPage()),
-    GoRoute(path: RoutePaths.homeAll, builder: (context, state) => const ZewgHomePage()),
-    GoRoute(path: RoutePaths.jobs, builder: (context, state) => const ZewgJobsPage()),
-    GoRoute(path: RoutePaths.internships, builder: (context, state) => const ZewgInternshipsPage()),
-    GoRoute(path: RoutePaths.scholarships, builder: (context, state) => const ZewgScholarshipsPage()),
-    GoRoute(path: '/opportunities/:id', builder: (context, state) => const OpportunityDetails()),
-    GoRoute(path: RoutePaths.journey, builder: (context, state) => const JourneyPage()),
-    GoRoute(path: RoutePaths.applied, builder: (context, state) => const AppliedPage()),
-    GoRoute(path: RoutePaths.profile, builder: (context, state) => const ProfilePage()),
-  
+    GoRoute(path: RoutePaths.welcome, builder: (_, __) => const WelcomePage()),
+    GoRoute(path: RoutePaths.signIn, builder: (_, __) => const SignInPage()),
+    GoRoute(path: RoutePaths.homeAll, builder: (_, __) => const ZewgHomePage()),
   ],
 );

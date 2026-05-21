@@ -1,62 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
 import 'package:zewg/core/widgets/main_bottom_nav.dart';
 import 'package:zewg/core/widgets/opportunity_card.dart';
 import 'package:zewg/features/home/presentation/widgets/home_feed_slivers.dart';
+import 'package:zewg/features/opportunities/domain/providers/opportunity_provider.dart';
 
-class ZewgScholarshipsPage extends StatelessWidget {
+class ZewgScholarshipsPage extends ConsumerWidget {
   const ZewgScholarshipsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(scholarshipsProvider);
+
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             buildSliverHeader(context),
-            buildSliverSearchAndTitle(),
+            buildSliverSearchAndTitle(ref),
             buildFilterRow(context, 'Scholarships'),
-            buildSectionTitle(
-              context,
-              'Featured Opportunities',
-              viewAllDestination: RoutePaths.homeAll,
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  const OpportunityCard(
-                    bookmarkKey: 'scholarships_public_health',
-                    title: 'Public Health Scholarship',
-                    company: 'World Health Organization',
-                    tags: ['Remote', 'Fully Funded', 'Global'],
-                    category: 'SCHOLARSHIP',
-                    categoryColor: Color(0xFFFDE2C4),
-                    deadline: 'Jun 30',
+            buildSectionTitle(context, 'Scholarships', viewAllDestination: RoutePaths.homeAll),
+            state.when(
+              loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+              error: (e, _) => SliverFillRemaining(child: Center(child: Text('Error: $e'))),
+              data: (scholarships) => SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      if (index == scholarships.length) return const SizedBox(height: 100);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: OpportunityCard(opportunity: scholarships[index]),
+                      );
+                    },
+                    childCount: scholarships.length + 1,
                   ),
-                  const SizedBox(height: 16),
-                  const OpportunityCard(
-                    bookmarkKey: 'scholarships_education_leader',
-                    title: 'Education Leader',
-                    company: 'UNESCO',
-                    tags: ['Hybrid', 'Fully Funded', 'Paris, France'],
-                    category: 'SCHOLARSHIP',
-                    categoryColor: Color(0xFFFDE2C4),
-                    deadline: 'July 1',
-                  ),
-                  const SizedBox(height: 16),
-                  const OpportunityCard(
-                    bookmarkKey: 'scholarships_social_dev',
-                    title: 'Social Dev Scholar',
-                    company: 'World Bank',
-                    tags: ['On-site', 'Fully Funded', 'Washington, DC'],
-                    category: 'SCHOLARSHIP',
-                    categoryColor: Color(0xFFFDE2C4),
-                    deadline: '',
-                  ),
-                  const SizedBox(height: 100),
-                ]),
+                ),
               ),
             ),
           ],

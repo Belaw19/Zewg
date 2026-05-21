@@ -1,62 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
 import 'package:zewg/core/widgets/main_bottom_nav.dart';
 import 'package:zewg/core/widgets/opportunity_card.dart';
 import 'package:zewg/features/home/presentation/widgets/home_feed_slivers.dart';
+import 'package:zewg/features/opportunities/domain/providers/opportunity_provider.dart';
 
-class ZewgInternshipsPage extends StatelessWidget {
+class ZewgInternshipsPage extends ConsumerWidget {
   const ZewgInternshipsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(internshipsProvider);
+
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             buildSliverHeader(context),
-            buildSliverSearchAndTitle(),
+            buildSliverSearchAndTitle(ref),
             buildFilterRow(context, 'Internships'),
-            buildSectionTitle(
-              context,
-              'Featured Opportunities',
-              viewAllDestination: RoutePaths.homeAll,
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  const OpportunityCard(
-                    bookmarkKey: 'internships_ux_intern',
-                    title: 'UX Intern',
-                    company: 'Google',
-                    tags: ['Remote', 'Paid', 'New York'],
-                    category: 'INTERNSHIP',
-                    categoryColor: Color(0xFFA2F1A2),
-                    deadline: 'Oct 30',
+            buildSectionTitle(context, 'Internships', viewAllDestination: RoutePaths.homeAll),
+            state.when(
+              loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+              error: (e, _) => SliverFillRemaining(child: Center(child: Text('Error: $e'))),
+              data: (internships) => SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      if (index == internships.length) return const SizedBox(height: 100);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: OpportunityCard(opportunity: internships[index]),
+                      );
+                    },
+                    childCount: internships.length + 1,
                   ),
-                  const SizedBox(height: 16),
-                  const OpportunityCard(
-                    bookmarkKey: 'internships_social_media',
-                    title: 'Social Media Intern',
-                    company: 'UNICEF',
-                    tags: ['Remote', 'Paid', 'Addis Ababa, Ethiopia'],
-                    category: 'INTERNSHIP',
-                    categoryColor: Color(0xFFA2F1A2),
-                    deadline: 'Nov 15',
-                  ),
-                  const SizedBox(height: 16),
-                  const OpportunityCard(
-                    bookmarkKey: 'internships_community_outreach',
-                    title: 'Community Outreach Intern',
-                    company: 'Red Cross',
-                    tags: ['On-site', 'Volunteer + Stipend', 'Addis Ababa, Ethiopia'],
-                    category: 'INTERNSHIP',
-                    categoryColor: Color(0xFFA2F1A2),
-                    deadline: 'Nov 15',
-                  ),
-                  const SizedBox(height: 100),
-                ]),
+                ),
               ),
             ),
           ],

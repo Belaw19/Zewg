@@ -1,62 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
 import 'package:zewg/core/widgets/main_bottom_nav.dart';
 import 'package:zewg/core/widgets/opportunity_card.dart';
 import 'package:zewg/features/home/presentation/widgets/home_feed_slivers.dart';
+import 'package:zewg/features/opportunities/domain/providers/opportunity_provider.dart';
 
-class ZewgJobsPage extends StatelessWidget {
+class ZewgJobsPage extends ConsumerWidget {
   const ZewgJobsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(jobsProvider);
+
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             buildSliverHeader(context),
-            buildSliverSearchAndTitle(),
+            buildSliverSearchAndTitle(ref),
             buildFilterRow(context, 'Jobs'),
-            buildSectionTitle(
-              context,
-              'Featured Opportunities',
-              viewAllDestination: RoutePaths.homeAll,
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  const OpportunityCard(
-                    bookmarkKey: 'jobs_frontend_developer',
-                    title: 'Frontend Developer (Entry Level)',
-                    company: 'Google',
-                    tags: ['Remote', '\$90k – \$120k', 'New York, NY'],
-                    category: 'JOB',
-                    categoryColor: Color(0xFFD4E5EF),
-                    deadline: 'Nov 10',
+            buildSectionTitle(context, 'Jobs', viewAllDestination: RoutePaths.homeAll),
+            state.when(
+              loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+              error: (e, _) => SliverFillRemaining(child: Center(child: Text('Error: $e'))),
+              data: (jobs) => SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      if (index == jobs.length) return const SizedBox(height: 100);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: OpportunityCard(opportunity: jobs[index]),
+                      );
+                    },
+                    childCount: jobs.length + 1,
                   ),
-                  const SizedBox(height: 16),
-                  const OpportunityCard(
-                    bookmarkKey: 'jobs_network_engineer',
-                    title: 'Network Engineer (Junior)',
-                    company: 'Cisco',
-                    tags: ['Remote', '\$80k – \$105k', 'San Jose, CA'],
-                    category: 'JOB',
-                    categoryColor: Color(0xFFD4E5EF),
-                    deadline: 'Nov 15',
-                  ),
-                  const SizedBox(height: 16),
-                  const OpportunityCard(
-                    bookmarkKey: 'jobs_product_designer',
-                    title: 'Product Designer (New Grad)',
-                    company: 'Figma',
-                    tags: ['Remote', '\$110k – \$140k', 'San Francisco, CA'],
-                    category: 'JOB',
-                    categoryColor: Color(0xFFD4E5EF),
-                    deadline: 'Oct 25',
-                  ),
-                  const SizedBox(height: 100),
-                ]),
+                ),
               ),
             ),
           ],

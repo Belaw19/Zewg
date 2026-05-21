@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 ThemeData buildAppTheme() {
   return ThemeData(
     scaffoldBackgroundColor: const Color(0xFFFAF9FB),
-    fontFamily: 'Manrope',
   );
 }
 
