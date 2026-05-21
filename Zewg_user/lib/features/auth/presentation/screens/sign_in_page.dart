@@ -1,15 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
 import 'package:zewg/core/theme/app_button_styles.dart';
-// import 'package:zewg/features/auth/presentation/widgets/admin_login_form.dart';
+import 'package:zewg/features/auth/domain/providers/auth_provider.dart';
 
-class SignInPage extends StatelessWidget {
+class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
 
   @override
+  ConsumerState<SignInPage> createState() => _SignInPageState();
+}
+
+class _SignInPageState extends ConsumerState<SignInPage> {
+  final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  bool _obscure = true;
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final ok = await ref
+        .read(authProvider.notifier)
+        .signIn(_emailCtrl.text, _passwordCtrl.text);
+    if (ok && mounted) context.go(RoutePaths.homeAll);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final auth = ref.watch(authProvider);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FB),
       body: SafeArea(
@@ -18,28 +44,15 @@ class SignInPage extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 60),
-              
-              // --- APP LOGO & SUBTITLE ---
               const Text(
                 'Zewg',
-                style: TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF004D61),
-                ),
+                style: TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: Color(0xFF004D61)),
               ),
               const Text(
                 'The Digital Curator',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF555555),
-                  letterSpacing: 0.5,
-                ),
+                style: TextStyle(fontSize: 16, color: Color(0xFF555555), letterSpacing: 0.5),
               ),
-
               const SizedBox(height: 60),
-
-              // --- LOGIN CARD ---
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(32.0),
@@ -47,11 +60,7 @@ class SignInPage extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
+                    BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 20, offset: const Offset(0, 10)),
                   ],
                 ),
                 child: Column(
@@ -59,89 +68,69 @@ class SignInPage extends StatelessWidget {
                   children: [
                     const Text(
                       'Welcome back',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1A1A),
-                      ),
+                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
                     ),
                     const SizedBox(height: 32),
-
-                    // Email Field
                     _buildLabel('EMAIL ADDRESS'),
-                    _buildTextField(
-                      hintText: 'curator@zewg.com',
-                      obscureText: false,
+                    TextField(
+                      controller: _emailCtrl,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: _inputDecoration('alex@zewg.com'),
                     ),
-
                     const SizedBox(height: 24),
-
-                    // Password Field
                     _buildLabel('PASSWORD'),
-                    _buildTextField(
-                      hintText: '••••••••',
-                      obscureText: true,
-                      suffixIcon: Icons.visibility_outlined,
+                    TextField(
+                      controller: _passwordCtrl,
+                      obscureText: _obscure,
+                      decoration: _inputDecoration('••••••••').copyWith(
+                        suffixIcon: IconButton(
+                          icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                              color: const Color(0xFF555555)),
+                          onPressed: () => setState(() => _obscure = !_obscure),
+                        ),
+                      ),
                     ),
-
+                    if (auth.error != null) ...[
+                      const SizedBox(height: 12),
+                      Text(auth.error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+                    ],
                     const SizedBox(height: 40),
-
-                    // Sign In Button
                     ElevatedButton(
-                      onPressed: () => context.go(RoutePaths.homeAll),
+                      onPressed: auth.isLoading ? null : _submit,
                       style: primaryInteractiveButtonStyle(
                         backgroundColor: const Color(0xFF005B6E),
                         foregroundColor: Colors.white,
                         minimumSize: const Size(double.infinity, 70),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(100),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                         elevation: 6,
                         shadowColor: const Color(0xFF005B6E).withOpacity(0.4),
                       ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Sign in',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                      child: auth.isLoading
+                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('Sign in', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                                SizedBox(width: 10),
+                                Icon(Icons.arrow_forward, color: Colors.white, size: 22),
+                              ],
                             ),
-                          ),
-                          SizedBox(width: 10),
-                          Icon(Icons.arrow_forward, color: Colors.white, size: 22),
-                        ],
-                      ),
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 40),
-
-              // --- FOOTER LINKS ---
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    "Don't have an account? ",
-                    style: TextStyle(color: Color(0xFF555555)),
-                  ),
+                  const Text("Don't have an account? ", style: TextStyle(color: Color(0xFF555555))),
                   GestureDetector(
                     onTap: () => context.go(RoutePaths.createAccount),
-                    child: const Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        color: Color(0xFF004D61),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: const Text('Sign Up',
+                        style: TextStyle(color: Color(0xFF004D61), fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
-          
               const SizedBox(height: 20),
             ],
           ),
@@ -150,44 +139,18 @@ class SignInPage extends StatelessWidget {
     );
   }
 
-  // // --- Helper Widgets ---
+  Widget _buildLabel(String text) => Padding(
+        padding: const EdgeInsets.only(bottom: 10.0),
+        child: Text(text,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF555555), letterSpacing: 0.8)),
+      );
 
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF555555),
-          letterSpacing: 0.8,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required String hintText,
-    required bool obscureText,
-    IconData? suffixIcon,
-  }) {
-    return TextField(
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        hintText: hintText,
+  InputDecoration _inputDecoration(String hint) => InputDecoration(
+        hintText: hint,
         hintStyle: const TextStyle(color: Color(0xFF9E9E9E)),
         filled: true,
         fillColor: const Color(0xFFE5E5E5).withOpacity(0.5),
-        suffixIcon: suffixIcon != null 
-            ? Icon(suffixIcon, color: const Color(0xFF555555)) 
-            : null,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-      ),
-    );
-  }
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      );
 }
