@@ -25,11 +25,7 @@ class Opportunity {
     this.isApplied = false,
   });
 
-  Opportunity copyWith({
-    bool? isSaved,
-    bool? isApplied,
-  }) =>
-      Opportunity(
+  Opportunity copyWith({bool? isSaved, bool? isApplied}) => Opportunity(
         id: id,
         title: title,
         company: company,
@@ -43,19 +39,34 @@ class Opportunity {
         isApplied: isApplied ?? this.isApplied,
       );
 
-  factory Opportunity.fromMap(Map<String, dynamic> m) => Opportunity(
-        id: m['id'] as String,
-        title: m['title'] as String,
-        company: m['company'] as String,
-        category: m['category'] as String,
-        location: m['location'] as String,
-        deadline: m['deadline'] as String,
-        description: m['description'] as String,
-        link: m['link'] as String,
-        tags: (m['tags'] as String).split(',').where((t) => t.isNotEmpty).toList(),
-        isSaved: (m['is_saved'] as int? ?? 0) == 1,
-        isApplied: (m['is_applied'] as int? ?? 0) == 1,
-      );
+  factory Opportunity.fromMap(Map<String, dynamic> m) {
+    // tags can be a List (from JSON) or a comma-string (legacy)
+    final rawTags = m['tags'];
+    final List<String> parsedTags = rawTags is List
+        ? rawTags.map((e) => e.toString()).toList()
+        : (rawTags as String).split(',').where((t) => t.isNotEmpty).toList();
+
+    // isSaved / isApplied can be bool (from JSON) or int (legacy SQLite)
+    bool parseBool(dynamic v) {
+      if (v is bool) return v;
+      if (v is int) return v == 1;
+      return false;
+    }
+
+    return Opportunity(
+      id: m['id'] as String,
+      title: m['title'] as String,
+      company: m['company'] as String,
+      category: m['category'] as String,
+      location: m['location'] as String,
+      deadline: m['deadline'] as String,
+      description: m['description'] as String,
+      link: m['link'] as String,
+      tags: parsedTags,
+      isSaved: parseBool(m['is_saved']),
+      isApplied: parseBool(m['is_applied']),
+    );
+  }
 
   Map<String, dynamic> toMap() => {
         'id': id,
@@ -66,8 +77,8 @@ class Opportunity {
         'deadline': deadline,
         'description': description,
         'link': link,
-        'tags': tags.join(','),
-        'is_saved': isSaved ? 1 : 0,
-        'is_applied': isApplied ? 1 : 0,
+        'tags': tags, // store as List — JSON-safe
+        'is_saved': isSaved,
+        'is_applied': isApplied,
       };
 }
