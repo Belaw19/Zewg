@@ -15,6 +15,65 @@ Zewg (ዘውግ) in Amharic means "connection based on category." The app connec
 - **Role-based Access**: Support for students and curators
 - **CRUD Operations**: Full create, read, update, delete for opportunities
 
+## Structure
+
+- **Zewg_user/** — student-facing app (browse, save, apply)
+- **zewg_admin/** — curator dashboard (CRUD opportunities)
+- **backend/** — Express + SQLite + JWT API
+
+## Quick start
+
+### 1. Backend
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+API: http://localhost:3000
+
+### 2. User app
+
+```bash
+cd Zewg_user
+flutter pub get
+flutter run
+
+# Android emulator:
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000
+```
+
+Demo login: `alex@zewg.com` / `password123`
+
+### 3. Admin app
+
+```bash
+cd zewg_admin
+flutter pub get
+flutter run
+```
+
+Demo login: `curator@zewg.com` / `curator123`
+
+## Architecture
+
+- Clean architecture per feature: data → domain → presentation
+- Riverpod 3 (Notifier, AsyncNotifier) for state
+- SQLite cache-first repositories (local → network → save)
+- JWT auth with role-based routes on the API
+
+## API endpoints
+
+| Method | Path |
+|--------|------|
+| POST | /auth/register |
+| POST | /auth/login |
+| GET | /opportunities |
+| POST | /opportunities (curator) |
+| PUT | /opportunities/:id (curator) |
+| DELETE | /opportunities/:id (curator) |
+
 ## Getting Started
 
 ### Prerequisites
@@ -22,6 +81,7 @@ Zewg (ዘውግ) in Amharic means "connection based on category." The app connec
 - Flutter SDK (3.11.4 or higher)
 - Dart SDK
 - Chrome (for web development)
+- Node.js (for backend)
 
 ### Installation
 
@@ -79,6 +139,9 @@ lib/
 - **go_router** – Navigation and routing
 - **google_fonts** – Custom fonts
 - **intl** – Internationalization and date formatting
+- **Express.js** – Backend API framework
+- **SQLite** – Local database
+- **JWT** – Authentication
 
 ## Team Members
 
