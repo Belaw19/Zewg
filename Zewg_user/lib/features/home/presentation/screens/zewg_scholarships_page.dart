@@ -13,6 +13,7 @@ class ZewgScholarshipsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(scholarshipsProvider);
+    final query = ref.watch(searchQueryProvider).toLowerCase().trim();
 
     return Scaffold(
       body: SafeArea(
@@ -25,21 +26,24 @@ class ZewgScholarshipsPage extends ConsumerWidget {
             state.when(
               loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
               error: (e, _) => SliverFillRemaining(child: Center(child: Text('Error: $e'))),
-              data: (scholarships) => SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      if (index == scholarships.length) return const SizedBox(height: 100);
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: OpportunityCard(opportunity: scholarships[index]),
-                      );
-                    },
-                    childCount: scholarships.length + 1,
+              data: (scholarships) {
+                final shown = filterOpportunitiesByQuery(scholarships, query);
+                return SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        if (index == shown.length) return const SizedBox(height: 100);
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: OpportunityCard(opportunity: shown[index]),
+                        );
+                      },
+                      childCount: shown.length + 1,
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ],
         ),

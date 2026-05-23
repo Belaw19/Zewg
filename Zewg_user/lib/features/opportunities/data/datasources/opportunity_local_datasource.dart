@@ -1,42 +1,41 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:sqflite/sqflite.dart';
+import 'package:zewg/core/database/app_database.dart';
 import 'package:zewg/features/opportunities/domain/models/opportunity.dart';
 
 class OpportunityLocalDataSource {
-  static const _key = 'opportunities_cache';
-
   Future<List<Opportunity>> getAll() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_key);
-    if (raw == null) return [];
-    final list = jsonDecode(raw) as List<dynamic>;
-    return list.map((e) => Opportunity.fromMap(e as Map<String, dynamic>)).toList();
+    final db = await AppDatabase.instance();
+    final rows = await db.query('opportunities', orderBy: 'created_at DESC');
+    return rows.map(_fromRow).toList();
   }
 
   Future<Opportunity?> getById(String id) async {
-    final all = await getAll();
-    try {
-      return all.firstWhere((o) => o.id == id);
-    } catch (_) {
-      return null;
-    }
+    final db = await AppDatabase.instance();
+    final rows = await db.query('opportunities', where: 'id = ?', whereArgs: [id]);
+    if (rows.isEmpty) return null;
+    return _fromRow(rows.first);
   }
 
   Future<void> upsertAll(List<Opportunity> items) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, jsonEncode(items.map((o) => o.toMap()).toList()));
+    final db = await AppDatabase.instance();
+    final batch = db.batch();
+    batch.delete('opportunities');
+    for (final item in items) {
+      batch.insert('opportunities', _toRow(item), conflictAlgorithm: ConflictAlgorithm.replace);
+    }
+    await batch.commit(noResult: true);
   }
 
   Future<void> upsert(Opportunity item) async {
-    final all = await getAll();
-    final idx = all.indexWhere((o) => o.id == item.id);
-    final updated = List<Opportunity>.from(all);
-    if (idx >= 0) {
-      updated[idx] = item;
-    } else {
-      updated.add(item);
-    }
-    await upsertAll(updated);
+    final db = await AppDatabase.instance();
+    await db.insert('opportunities', _toRow(item), conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<void> delete(String id) async {
+    final db = await AppDatabase.instance();
+    await db.delete('opportunities', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<List<Opportunity>> getSaved() async {
@@ -48,4 +47,31 @@ class OpportunityLocalDataSource {
     final all = await getAll();
     return all.where((o) => o.isApplied).toList();
   }
+
+  Opportunity _fromRow(Map<String, Object?> row) {
+    final tagsRaw = row['tags'] as String? ?? '[]';
+    final tags = (jsonDecode(tagsRaw) as List<dynamic>).map((e) => e.toString()).toList();
+    return Opportunity.fromMap({
+      ...row.map((k, v) => MapEntry(k, v)),
+      'tags': tags,
+    });
+  }
+
+  Map<String, Object?> _toRow(Opportunity o) => {
+        'id': o.id,
+        'title': o.title,
+        'company': o.company,
+        'category': o.category,
+        'location': o.location,
+        'deadline': o.deadline,
+        'description': o.description,
+        'link': o.link,
+        'type': o.type,
+        'created_by': o.createdBy,
+        'created_at': o.createdAt,
+        'tags': jsonEncode(o.tags),
+        'cover_image_path': o.coverImagePath,
+        'is_saved': o.isSaved ? 1 : 0,
+        'is_applied': o.isApplied ? 1 : 0,
+      };
 }

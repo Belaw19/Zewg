@@ -12,6 +12,7 @@ class ZewgHomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(opportunitiesProvider);
+    final query = ref.watch(searchQueryProvider).toLowerCase().trim();
 
     return Scaffold(
       body: SafeArea(
@@ -30,21 +31,24 @@ class ZewgHomePage extends ConsumerWidget {
                 error: (e, _) => SliverFillRemaining(
                   child: Center(child: Text('Error: $e')),
                 ),
-                data: (opportunities) => SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        if (index == opportunities.length) return const SizedBox(height: 100);
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: OpportunityCard(opportunity: opportunities[index]),
-                        );
-                      },
-                      childCount: opportunities.length + 1,
+                data: (opportunities) {
+                  final shown = filterOpportunitiesByQuery(opportunities, query);
+                  return SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          if (index == shown.length) return const SizedBox(height: 100);
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: OpportunityCard(opportunity: shown[index]),
+                          );
+                        },
+                        childCount: shown.length + 1,
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ],
           ),

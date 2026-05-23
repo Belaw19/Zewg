@@ -8,7 +8,6 @@ class OpportunityRepository {
 
   OpportunityRepository(this._local, this._remote);
 
-  /// Cache-first: returns local data if available, otherwise fetches from remote.
   Future<List<Opportunity>> getAll() async {
     final cached = await _local.getAll();
     if (cached.isNotEmpty) return cached;
@@ -17,13 +16,21 @@ class OpportunityRepository {
     return remote;
   }
 
-  /// Cache-first for single opportunity.
   Future<Opportunity> getById(String id) async {
-    final cached = await _local.getById(id);
-    if (cached != null) return cached;
-    final remote = await _remote.fetchById(id);
-    await _local.upsert(remote);
-    return remote;
+    try {
+      final remote = await _remote.fetchById(id);
+      final local = await _local.getById(id);
+      final merged = remote.copyWith(
+        isSaved: local?.isSaved ?? false,
+        isApplied: local?.isApplied ?? false,
+      );
+      await _local.upsert(merged);
+      return merged;
+    } catch (_) {
+      final cached = await _local.getById(id);
+      if (cached != null) return cached;
+      rethrow;
+    }
   }
 
   Future<List<Opportunity>> getSaved() => _local.getSaved();
@@ -40,10 +47,8 @@ class OpportunityRepository {
     await _local.upsert(updated);
   }
 
-  /// Force refresh from remote (pull-to-refresh).
   Future<List<Opportunity>> refresh() async {
     final remote = await _remote.fetchAll();
-    // Preserve local saved/applied flags when refreshing
     final existing = await _local.getAll();
     final flagMap = {for (final o in existing) o.id: o};
     final merged = remote.map((o) {
@@ -53,5 +58,27 @@ class OpportunityRepository {
     }).toList();
     await _local.upsertAll(merged);
     return merged;
+  }
+
+  Future<Opportunity> create(Opportunity opportunity) async {
+    final created = await _remote.create(opportunity);
+    await _local.upsert(created);
+    return created;
+  }
+
+  Future<Opportunity> update(Opportunity opportunity) async {
+    final updated = await _remote.update(opportunity);
+    final existing = await _local.getById(opportunity.id);
+    final withFlags = updated.copyWith(
+      isSaved: existing?.isSaved ?? false,
+      isApplied: existing?.isApplied ?? false,
+    );
+    await _local.upsert(withFlags);
+    return withFlags;
+  }
+
+  Future<void> delete(String id) async {
+    await _remote.delete(id);
+    await _local.delete(id);
   }
 }

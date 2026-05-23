@@ -1,63 +1,93 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:zewg/core/network/api_client.dart';
 import 'package:zewg/features/opportunities/data/datasources/opportunity_local_datasource.dart';
 import 'package:zewg/features/opportunities/data/datasources/opportunity_remote_datasource.dart';
 import 'package:zewg/features/opportunities/data/repositories/opportunity_repository.dart';
 import 'package:zewg/features/opportunities/domain/models/opportunity.dart';
 
-// ── Repository provider ──────────────────────────────────────────────────────
-
 final opportunityRepositoryProvider = Provider<OpportunityRepository>((ref) {
+  final client = ref.watch(apiClientProvider);
   return OpportunityRepository(
     OpportunityLocalDataSource(),
-    OpportunityRemoteDataSource(),
+    OpportunityRemoteDataSource(client),
   );
 });
 
-// ── All opportunities ────────────────────────────────────────────────────────
-
-class OpportunitiesNotifier extends StateNotifier<AsyncValue<List<Opportunity>>> {
-  final OpportunityRepository _repo;
-
-  OpportunitiesNotifier(this._repo) : super(const AsyncValue.loading()) {
-    load();
-  }
-
-  Future<void> load() async {
-    state = const AsyncValue.loading();
+class OpportunitiesNotifier extends AsyncNotifier<List<Opportunity>> {
+  @override
+  Future<List<Opportunity>> build() async {
     try {
-      final data = await _repo.getAll();
-      state = AsyncValue.data(data);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      return await ref.read(opportunityRepositoryProvider).refresh();
+    } catch (_) {
+      return ref.read(opportunityRepositoryProvider).getAll();
     }
   }
 
   Future<void> refresh() async {
-    try {
-      final data = await _repo.refresh();
-      state = AsyncValue.data(data);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref.read(opportunityRepositoryProvider).refresh(),
+    );
   }
 
   Future<void> toggleSave(Opportunity opportunity) async {
-    await _repo.toggleSave(opportunity);
-    await load();
+    await ref.read(opportunityRepositoryProvider).toggleSave(opportunity);
+    final current = state.asData?.value;
+    if (current != null) {
+      state = AsyncData(
+        current
+            .map((o) => o.id == opportunity.id ? o.copyWith(isSaved: !o.isSaved) : o)
+            .toList(),
+      );
+    }
   }
 
   Future<void> markApplied(Opportunity opportunity) async {
-    await _repo.markApplied(opportunity);
-    await load();
+    await ref.read(opportunityRepositoryProvider).markApplied(opportunity);
+    final current = state.asData?.value;
+    if (current != null) {
+      state = AsyncData(
+        current.map((o) => o.id == opportunity.id ? o.copyWith(isApplied: true) : o).toList(),
+      );
+    }
+  }
+
+  Future<Opportunity?> create(Opportunity draft) async {
+    try {
+      final created = await ref.read(opportunityRepositoryProvider).create(draft);
+      await refresh();
+      return created;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return null;
+    }
+  }
+
+  Future<Opportunity?> updateOpportunity(Opportunity opportunity) async {
+    try {
+      final updated = await ref.read(opportunityRepositoryProvider).update(opportunity);
+      await refresh();
+      return updated;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return null;
+    }
+  }
+
+  Future<bool> delete(String id) async {
+    try {
+      await ref.read(opportunityRepositoryProvider).delete(id);
+      await refresh();
+      return true;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return false;
+    }
   }
 }
 
 final opportunitiesProvider =
-    StateNotifierProvider<OpportunitiesNotifier, AsyncValue<List<Opportunity>>>((ref) {
-  return OpportunitiesNotifier(ref.watch(opportunityRepositoryProvider));
-});
-
-// ── Filtered providers ───────────────────────────────────────────────────────
+    AsyncNotifierProvider<OpportunitiesNotifier, List<Opportunity>>(OpportunitiesNotifier.new);
 
 final jobsProvider = Provider<AsyncValue<List<Opportunity>>>((ref) {
   return ref.watch(opportunitiesProvider).whenData(
@@ -89,32 +119,38 @@ final appliedOpportunitiesProvider = Provider<AsyncValue<List<Opportunity>>>((re
       );
 });
 
-// ── Single opportunity by id ─────────────────────────────────────────────────
-
-final opportunityByIdProvider =
-    FutureProvider.family<Opportunity, String>((ref, id) async {
-  // First try from the already-loaded list (cache hit in memory)
-  final listState = ref.watch(opportunitiesProvider);
-  if (listState is AsyncData<List<Opportunity>>) {
-    final found = listState.value.where((o) => o.id == id);
-    if (found.isNotEmpty) return found.first;
-  }
-  return ref.watch(opportunityRepositoryProvider).getById(id);
+final opportunityByIdProvider = FutureProvider.family<Opportunity, String>((ref, id) async {
+  ref.watch(opportunitiesProvider);
+  return ref.read(opportunityRepositoryProvider).getById(id);
 });
 
-// ── Search ───────────────────────────────────────────────────────────────────
+class SearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
 
-final searchQueryProvider = StateProvider<String>((ref) => '');
+  void setQuery(String value) => state = value;
+}
+
+final searchQueryProvider =
+    NotifierProvider<SearchQueryNotifier, String>(SearchQueryNotifier.new);
 
 final searchResultsProvider = Provider<AsyncValue<List<Opportunity>>>((ref) {
   final query = ref.watch(searchQueryProvider).toLowerCase().trim();
-  return ref.watch(opportunitiesProvider).whenData((list) {
-    if (query.isEmpty) return list;
-    return list
-        .where((o) =>
-            o.title.toLowerCase().contains(query) ||
-            o.company.toLowerCase().contains(query) ||
-            o.tags.any((t) => t.toLowerCase().contains(query)))
-        .toList();
-  });
+  final listAsync = ref.watch(opportunitiesProvider);
+
+  return listAsync.when(
+    data: (list) {
+      if (query.isEmpty) return AsyncData(list);
+      return AsyncData(
+        list
+            .where((o) =>
+                o.title.toLowerCase().contains(query) ||
+                o.company.toLowerCase().contains(query) ||
+                o.tags.any((t) => t.toLowerCase().contains(query)))
+            .toList(),
+      );
+    },
+    loading: () => const AsyncLoading(),
+    error: (e, st) => AsyncError(e, st),
+  );
 });

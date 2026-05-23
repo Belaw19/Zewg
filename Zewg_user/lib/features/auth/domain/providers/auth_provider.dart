@@ -1,11 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:zewg/core/network/api_client.dart';
 import 'package:zewg/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:zewg/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:zewg/features/auth/data/repositories/auth_repository.dart';
 import 'package:zewg/features/auth/domain/models/user_model.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  return AuthRepository(AuthLocalDataSource(), AuthRemoteDataSource());
+  final client = ref.watch(apiClientProvider);
+  return AuthRepository(
+    AuthLocalDataSource(),
+    AuthRemoteDataSource(client),
+    client,
+  );
 });
 
 class AuthState {
@@ -18,16 +24,22 @@ class AuthState {
   bool get isAuthenticated => user != null;
 }
 
-class AuthNotifier extends StateNotifier<AuthState> {
-  final AuthRepository _repo;
-
-  AuthNotifier(this._repo) : super(const AuthState(isLoading: true)) {
-    _init();
+class AuthNotifier extends Notifier<AuthState> {
+  @override
+  AuthState build() {
+    _restoreSession();
+    return const AuthState(isLoading: true);
   }
 
-  Future<void> _init() async {
-    final user = await _repo.getSessionUser();
-    state = AuthState(user: user);
+  AuthRepository get _repo => ref.read(authRepositoryProvider);
+
+  Future<void> _restoreSession() async {
+    try {
+      final user = await _repo.getSessionUser();
+      state = AuthState(user: user);
+    } catch (_) {
+      state = const AuthState();
+    }
   }
 
   Future<bool> signIn(String email, String password) async {
@@ -42,10 +54,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<bool> signUp(String name, String email, String password) async {
+  Future<bool> signUp(String name, String email, String password, {String role = 'student'}) async {
     state = const AuthState(isLoading: true);
     try {
-      final user = await _repo.signUp(name, email, password);
+      final user = await _repo.signUp(name, email, password, role: role);
       state = AuthState(user: user);
       return true;
     } catch (e) {
@@ -60,6 +72,4 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
-final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  return AuthNotifier(ref.watch(authRepositoryProvider));
-});
+final authProvider = NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);

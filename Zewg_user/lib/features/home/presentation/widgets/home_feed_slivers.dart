@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:zewg/core/constants/route_paths.dart';
+import 'package:zewg/features/opportunities/domain/models/opportunity.dart';
 import 'package:zewg/features/opportunities/domain/providers/opportunity_provider.dart';
 
 Widget buildSliverHeader(BuildContext context) {
@@ -32,6 +33,69 @@ Widget buildSliverHeader(BuildContext context) {
   );
 }
 
+List<Opportunity> filterOpportunitiesByQuery(List<Opportunity> list, String query) {
+  if (query.isEmpty) return list;
+  return list
+      .where((o) =>
+          o.title.toLowerCase().contains(query) ||
+          o.company.toLowerCase().contains(query) ||
+          o.tags.any((t) => t.toLowerCase().contains(query)))
+      .toList();
+}
+
+class _OpportunitySearchField extends ConsumerStatefulWidget {
+  const _OpportunitySearchField();
+
+  @override
+  ConsumerState<_OpportunitySearchField> createState() => _OpportunitySearchFieldState();
+}
+
+class _OpportunitySearchFieldState extends ConsumerState<_OpportunitySearchField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: ref.read(searchQueryProvider));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      onChanged: (v) {
+        ref.read(searchQueryProvider.notifier).setQuery(v);
+        setState(() {});
+      },
+      decoration: InputDecoration(
+        hintText: 'Search roles, companies, or keywords...',
+        hintStyle: const TextStyle(color: Colors.black38),
+        prefixIcon: const Icon(Icons.search, color: Color(0xFF3F484C)),
+        suffixIcon: _controller.text.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear, size: 20),
+                onPressed: () {
+                  _controller.clear();
+                  ref.read(searchQueryProvider.notifier).setQuery('');
+                  setState(() {});
+                },
+              )
+            : null,
+        filled: true,
+        fillColor: const Color(0xFFE8E8E8),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      ),
+    );
+  }
+}
+
 Widget buildSliverSearchAndTitle(WidgetRef ref) {
   return SliverToBoxAdapter(
     child: Padding(
@@ -58,18 +122,7 @@ Widget buildSliverSearchAndTitle(WidgetRef ref) {
             style: TextStyle(fontSize: 16, color: Color(0xFF3F484C), height: 1.4),
           ),
           const SizedBox(height: 24),
-          TextField(
-            onChanged: (v) => ref.read(searchQueryProvider.notifier).state = v,
-            decoration: InputDecoration(
-              hintText: 'Search roles, companies, or keywords...',
-              hintStyle: const TextStyle(color: Colors.black38),
-              prefixIcon: const Icon(Icons.search, color: Color(0xFF3F484C)),
-              filled: true,
-              fillColor: const Color(0xFFE8E8E8),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            ),
-          ),
+          const _OpportunitySearchField(),
         ],
       ),
     ),
