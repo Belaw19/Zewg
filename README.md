@@ -26,17 +26,20 @@ Zewg (ዘውግ) in Amharic means "connection based on category." The app connec
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/Belaw19/Zewg.git
 cd Zewg
 ```
 
 2. Install dependencies:
+
 ```bash
 flutter pub get
 ```
 
 3. Run the app:
+
 ```bash
 # For Chrome
 flutter run -d chrome
@@ -79,16 +82,14 @@ lib/
 
 ## Team Members
 
-| Full Name | ID (UGR/XXXX/YY) |
-| --------- | ---------------- |
-| Beimnet Abdi  | UGR/8524/16      |
+| Full Name        | ID (UGR/XXXX/YY) |
+| ---------------- | ---------------- |
+| Beimnet Abdi     | UGR/8524/16      |
 | Kebron Gizachew  | UGR/2666/16      |
-| Kidus Girma  | UGR/7576/16     |
-| Tsedeniya Fiseha| UGR/9263/16      |
-| Zenebu Melaku  | UGR/6058/16      |
+| Kidus Girma      | UGR/7576/16      |
+| Tsedeniya Fiseha | UGR/9263/16      |
+| Zenebu Melaku    | UGR/6058/16      |
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-
