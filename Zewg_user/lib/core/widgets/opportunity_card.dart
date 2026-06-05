@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -243,9 +244,11 @@ class _CardBackground extends StatelessWidget {
       return Image.asset(value, fit: BoxFit.cover, width: double.infinity, height: double.infinity);
     }
 
-    final file = File(value);
-    if (file.existsSync()) {
-      return Image.file(file, fit: BoxFit.cover, width: double.infinity, height: double.infinity);
+    if (!kIsWeb) {
+      final file = File(value);
+      if (file.existsSync()) {
+        return Image.file(file, fit: BoxFit.cover, width: double.infinity, height: double.infinity);
+      }
     }
 
     return null;

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -32,9 +33,11 @@ class CoverImageUtil {
       return Image.asset(source, height: height, width: width, fit: fit);
     }
 
-    final file = File(source);
-    if (file.existsSync()) {
-      return Image.file(file, height: height, width: width, fit: fit);
+    if (!kIsWeb) {
+      final file = File(source);
+      if (file.existsSync()) {
+        return Image.file(file, height: height, width: width, fit: fit);
+      }
     }
 
     return _placeholder(height: height, width: width);

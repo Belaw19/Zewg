@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class CoverImageUtil {
@@ -45,12 +46,14 @@ class CoverImageUtil {
       );
     }
 
-    final file = File(value);
-    if (file.existsSync()) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Image.file(file, height: height, width: width, fit: fit),
-      );
+    if (!kIsWeb) {
+      final file = File(value);
+      if (file.existsSync()) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.file(file, height: height, width: width, fit: fit),
+        );
+      }
     }
 
     return _placeholder(height: height, width: width);

@@ -1,12 +1,19 @@
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
   static Database? _db;
 
+  static Future<String> _databasePath() async {
+    const fileName = 'zewg.db';
+    if (kIsWeb) return fileName;
+    return join(await getDatabasesPath(), fileName);
+  }
+
   static Future<Database> instance() async {
     if (_db != null) return _db!;
-    final dbPath = join(await getDatabasesPath(), 'zewg.db');
+    final dbPath = await _databasePath();
     _db = await openDatabase(
       dbPath,
       version: 2,

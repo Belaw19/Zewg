@@ -1,19 +1,14 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'core/database/app_database.dart';
+import 'core/database/database_initializer.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  }
+  await initializeDatabaseFactory();
   await AppDatabase.instance();
   runApp(const ProviderScope(child: ZewgApp()));
 }
