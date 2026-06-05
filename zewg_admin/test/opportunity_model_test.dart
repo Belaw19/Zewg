@@ -2,15 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:zewg_admin/features/opportunities/data/mappers/opportunity_mapper.dart';
 import 'package:zewg_admin/features/opportunities/domain/opportunity.dart';
 
-import 'widgets/helpers/sample_data.dart';
+import 'helpers/sample_data.dart';
 
 void main() {
   group('ApplicationStep', () {
     test('copyWith updates title and description', () {
-      final step = ApplicationStep(
-        title: 'Review',
-        description: 'Initial screen',
-      );
+      final step = ApplicationStep(title: 'Review', description: 'Initial screen');
       final updated = step.copyWith(description: 'Panel review');
 
       expect(updated.title, 'Review');
