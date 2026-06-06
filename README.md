@@ -153,6 +153,23 @@ lib/
 | Tsedeniya Fiseha | UGR/9263/16      |
 | Zenebu Melaku    | UGR/6058/16      |
 
+## zewg_user pictures
+![Front Screen](assets/front.jpg)
+![second screen](assets/second%20front.jpg)
+![login screen](assets/login.jpg)
+![signup screen](assets/sign%20up.jpg)
+![Home screen](assets/home.jpg)
+![filter screen](assets/filter.jpg)
+![details screen](assets/details.jpg)
+![profile screen](assets/profile.jpg)
+![saved screen](assets/saved.jpg)
+![applied screen](assets/applied.jpg)
+
+
+
+
+
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
